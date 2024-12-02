@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:panthers_gym/home_screen.dart';
+import 'package:panthers_gym/home_screen.dart';
 
 class CuestionarioScreen extends StatefulWidget {
   @override
@@ -232,7 +234,10 @@ class _CuestionarioScreenState extends State<CuestionarioScreen> {
             SizedBox(height: 70),
             ElevatedButton(
               onPressed: () {
-                // Acción para empezar
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeScreen()),
+                );
               },
               child: Text(
                 'Empecemos',

@@ -25,7 +25,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       // Configuramos las rutas
-      initialRoute: '/login',
+      initialRoute: '/cuestionario',
       routes: {
         '/login': (context) => LoginScreen(),
         '/cuestionario': (context) => CuestionarioScreen(),

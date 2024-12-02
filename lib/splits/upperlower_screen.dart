@@ -146,6 +146,39 @@ class _UpperLowerScreenState extends State<UpperLowerScreen> {
                 },
               ),
             ),
+            // Botones de "Agregar al calendario" y "Eliminar del calendario"
+            SizedBox(height: size.height * (isLandscape ? 0.005 : 0.02)),
+            _buildActionButton(
+              context: context,
+              label: "Agregar al calendario",
+              icon: Icons.calendar_today_outlined,
+              color: Color(0xFF0047AB),
+              size: size,
+              isLandscape: isLandscape,
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Entrenamiento agregado al calendario.'),
+                  ),
+                );
+              },
+            ),
+            SizedBox(height: size.height * (isLandscape ? 0.005 : 0.01)),
+            _buildActionButton(
+              context: context,
+              label: "Eliminar del calendario",
+              icon: Icons.delete_outline,
+              color: Colors.red,
+              size: size,
+              isLandscape: isLandscape,
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Entrenamiento eliminado del calendario.'),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),

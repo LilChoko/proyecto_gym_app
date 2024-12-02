@@ -1,13 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatelessWidget {
+  Future<User?> signInWithGoogle() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    if (googleUser == null) return null;
+
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
+    final OAuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    return (await FirebaseAuth.instance.signInWithCredential(credential)).user;
+  }
+
+  Future<User?> signInWithGitHub() async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    // Reemplaza `githubToken` con un token válido obtenido desde GitHub OAuth
+    final String githubToken = 'your-github-token';
+    final OAuthCredential githubAuthCredential =
+        GithubAuthProvider.credential(githubToken);
+
+    return (await auth.signInWithCredential(githubAuthCredential)).user;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Color(0xFF0047AB), // Azul cobalto
+        backgroundColor: Color(0xFF0047AB),
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.settings, color: Colors.white),
@@ -16,17 +43,15 @@ class LoginScreen extends StatelessWidget {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          // Detecta orientación y espacio disponible
           bool isPortrait = constraints.maxHeight > constraints.maxWidth;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: constraints.maxHeight, // Limita el alto mínimo
+                minHeight: constraints.maxHeight,
               ),
               child: IntrinsicHeight(
-                // Ajusta los hijos al contenido total
                 child: Column(
                   mainAxisAlignment: isPortrait
                       ? MainAxisAlignment.start
@@ -34,17 +59,15 @@ class LoginScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SizedBox(height: isPortrait ? 20 : 0),
-                    // Logo redondeado
                     ClipOval(
                       child: Image.asset(
-                        'assets/panther_gym_logo.png', // Reemplaza con la ruta de tu logo
+                        'assets/panther_gym_logo.png',
                         height: isPortrait ? 100 : 80,
                         width: isPortrait ? 100 : 80,
                         fit: BoxFit.cover,
                       ),
                     ),
                     SizedBox(height: isPortrait ? 40 : 20),
-                    // Campo de correo
                     TextField(
                       decoration: InputDecoration(
                         labelText: 'Correo electrónico',
@@ -52,7 +75,6 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 20),
-                    // Campo de contraseña
                     TextField(
                       obscureText: true,
                       decoration: InputDecoration(
@@ -61,12 +83,16 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 20),
-                    // Botones de Google y Facebook
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton.icon(
-                          onPressed: () {},
+                          onPressed: () async {
+                            User? user = await signInWithGoogle();
+                            if (user != null) {
+                              print('Google Sign-In Successful: ${user.email}');
+                            }
+                          },
                           icon: FaIcon(FontAwesomeIcons.google,
                               color: Colors.white),
                           label: Text('Google'),
@@ -78,12 +104,17 @@ class LoginScreen extends StatelessWidget {
                           ),
                         ),
                         ElevatedButton.icon(
-                          onPressed: () {},
-                          icon: FaIcon(FontAwesomeIcons.facebookF,
+                          onPressed: () async {
+                            User? user = await signInWithGitHub();
+                            if (user != null) {
+                              print('GitHub Sign-In Successful: ${user.email}');
+                            }
+                          },
+                          icon: FaIcon(FontAwesomeIcons.github,
                               color: Colors.white),
-                          label: Text('Facebook'),
+                          label: Text('GitHub'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
+                            backgroundColor: Colors.black,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -91,22 +122,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 10),
-                    // Botón de GitHub
-                    ElevatedButton.icon(
-                      onPressed: () {},
-                      icon:
-                          FaIcon(FontAwesomeIcons.github, color: Colors.white),
-                      label: Text('GitHub'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                    ),
                     Spacer(),
-                    // Botones de texto centrados
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
