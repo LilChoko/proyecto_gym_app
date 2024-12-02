@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "590830499331",
+    "project_id": "proyecto-moviles-308f2",
+    "storage_bucket": "proyecto-moviles-308f2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:590830499331:android:d3d5866c72aee915bc4036",
+        "android_client_info": {
+          "package_name": "com.example.proyecto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCm4lofURQaoW5lM0_TKKs2tmEfGBOY7B4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:590830499331:android:7140a41a7bdfcc76bc4036",
+        "android_client_info": {
+          "package_name": "com.proyecto.gymapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCm4lofURQaoW5lM0_TKKs2tmEfGBOY7B4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
