@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:panthers_gym/home_screen.dart';
+import 'package:panthers_gym/screens/home_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   @override

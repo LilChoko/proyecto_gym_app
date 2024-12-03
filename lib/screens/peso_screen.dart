@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:intl/intl.dart';
-import 'package:panthers_gym/home_screen.dart';
+import 'package:panthers_gym/screens/home_screen.dart';
 
 class PesoScreen extends StatefulWidget {
   @override

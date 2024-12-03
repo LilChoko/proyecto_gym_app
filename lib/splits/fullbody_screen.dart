@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:panthers_gym/training_screen.dart';
+import 'package:panthers_gym/screens/training_screen.dart';
 
 class FullBodyScreen extends StatefulWidget {
   @override
