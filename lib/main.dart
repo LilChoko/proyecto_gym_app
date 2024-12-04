@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:panthers_gym/screens/home_screen.dart';
 import 'package:panthers_gym/screens/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 // ValueNotifier para el tema
 final ValueNotifier<ThemeMode> themeModeNotifier =
@@ -15,10 +16,22 @@ final ValueNotifier<String> selectedFontNotifier =
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializa Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await loadPreferences(); // Cargar configuraciones de usuario
+
+  // Inicializa Supabase
+  await Supabase.initialize(
+    url: 'https://iuquhvgkjvmjjrdhaget.supabase.co', // Reemplaza con tu URL
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1cXVodmdranZtampyZGhhZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMyOTU1OTgsImV4cCI6MjA0ODg3MTU5OH0.x_3dluR-0iS5_ScJtfeM87Po19M8b8OvH5ZKUQ23CHo', // Reemplaza con tu clave API anónima
+  );
+
+  // Cargar configuraciones de usuario
+  await loadPreferences();
+
   runApp(const MainApp());
 }
 
@@ -59,7 +72,7 @@ class MainApp extends StatelessWidget {
               debugShowCheckedModeBanner: false,
               theme: ThemeData(
                 brightness: Brightness.light,
-                primaryColor: Color(0xFF0047AB), // Azul principal
+                primaryColor: const Color(0xFF0047AB), // Azul principal
                 scaffoldBackgroundColor: Colors.white,
                 textTheme: TextTheme(
                   bodyLarge:
@@ -76,8 +89,9 @@ class MainApp extends StatelessWidget {
               ),
               darkTheme: ThemeData(
                 brightness: Brightness.dark,
-                primaryColor: Color(0xFF0047AB), // Azul principal
-                scaffoldBackgroundColor: Color(0xFF121212), // Fondo oscuro
+                primaryColor: const Color(0xFF0047AB), // Azul principal
+                scaffoldBackgroundColor:
+                    const Color(0xFF121212), // Fondo oscuro
                 textTheme: TextTheme(
                   bodyLarge:
                       TextStyle(fontFamily: fontFamily, color: Colors.white),

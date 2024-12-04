@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:panthers_gym/screens/login_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'profile_screen.dart';
 import 'peso_screen.dart';
 import 'training_screen.dart';
@@ -177,11 +180,23 @@ class HomeScreen extends StatelessWidget {
                   _buildIconButton(
                     context: context,
                     icon: Icons.exit_to_app,
-                    label: 'Cerrar\nSesion',
+                    label: 'Cerrar\nSesión',
                     size: size,
                     isLandscape: isLandscape,
-                    onPressed: () {
-                      // Función para Cerrar Sesión
+                    onPressed: () async {
+                      // Cerrar sesión en Firebase Auth
+                      await firebase_auth.FirebaseAuth.instance.signOut();
+
+                      // Limpiar SharedPreferences
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.clear();
+
+                      // Redirigir al LoginScreen
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                        (Route<dynamic> route) => false,
+                      );
                     },
                   ),
                 ],

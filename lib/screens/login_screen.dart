@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
+import 'cuestionario1_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -10,7 +12,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _auth = FirebaseAuth.instance;
+  final _auth = firebase_auth.FirebaseAuth.instance;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -42,37 +44,36 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _registerWithEmail() async {
+  Future<void> _sendPasswordReset() async {
     final email = _emailController.text.trim();
-    final password = _passwordController.text;
 
     if (!_isValidEmail(email)) {
       _showMessage('Por favor, introduce un correo válido.');
       return;
     }
 
-    if (password.isEmpty) {
-      _showMessage('La contraseña no puede estar vacía.');
-      return;
-    }
-
     _setLoading(true);
     try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      if (!userCredential.user!.emailVerified) {
-        await userCredential.user!.sendEmailVerification();
-        _showMessage(
-          'Se ha enviado un correo de verificación a $email. Por favor, verifica tu cuenta antes de iniciar sesión.',
-        );
-      }
-    } on FirebaseAuthException catch (e) {
+      await _auth.sendPasswordResetEmail(email: email);
+      _showMessage('Se ha enviado un correo para restablecer tu contraseña.');
+    } on firebase_auth.FirebaseAuthException catch (e) {
       _showMessage(_getFirebaseAuthErrorMessage(e.code));
     } finally {
       _setLoading(false);
+    }
+  }
+
+  Future<void> _resendVerificationEmail() async {
+    try {
+      firebase_auth.User? user = _auth.currentUser;
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
+        _showMessage('Correo de verificación reenviado a ${user.email}.');
+      } else {
+        _showMessage('El usuario ya está verificado o no está autenticado.');
+      }
+    } catch (e) {
+      _showMessage('Error al reenviar correo de verificación.');
     }
   }
 
@@ -92,76 +93,101 @@ class _LoginScreenState extends State<LoginScreen> {
 
     _setLoading(true);
     try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      firebase_auth.UserCredential userCredential =
+          await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
+
       if (!userCredential.user!.emailVerified) {
         _showMessage(
           'Tu correo no está verificado. Por favor, revisa tu bandeja de entrada.',
         );
       } else {
-        _showMessage('Inicio de sesión exitoso.');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
-        );
+        // Verificar si el cuestionario ya fue completado
+        final prefs = await SharedPreferences.getInstance();
+        final completedQuestionnaire =
+            prefs.getBool('completedQuestionnaire') ?? false;
+
+        if (completedQuestionnaire) {
+          // Si ya completó el cuestionario, redirigir al HomeScreen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+        } else {
+          // Si no, redirigir al Cuestionario
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => CuestionarioScreen()),
+          );
+        }
       }
-    } on FirebaseAuthException catch (e) {
+    } on firebase_auth.FirebaseAuthException catch (e) {
       _showMessage(_getFirebaseAuthErrorMessage(e.code));
     } finally {
       _setLoading(false);
     }
   }
 
-  Future<void> _sendPasswordReset() async {
+  Future<void> _handlePostLogin(String userId) async {
+    // Leer el estado de `completedQuestionnaire` desde SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final hasCompletedQuestionnaire =
+        prefs.getBool('completedQuestionnaire_$userId') ?? false;
+
+    if (!hasCompletedQuestionnaire) {
+      // Redirigir al cuestionario si no lo ha completado
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => CuestionarioScreen()),
+      );
+    } else {
+      // Redirigir al HomeScreen si ya completó el cuestionario
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
+    }
+  }
+
+  Future<void> _registerWithEmail() async {
     final email = _emailController.text.trim();
+    final password = _passwordController.text;
 
     if (!_isValidEmail(email)) {
       _showMessage('Por favor, introduce un correo válido.');
       return;
     }
 
+    if (password.isEmpty) {
+      _showMessage('La contraseña no puede estar vacía.');
+      return;
+    }
+
     _setLoading(true);
     try {
-      await _auth.sendPasswordResetEmail(email: email);
-      _showMessage(
-        'Se ha enviado un correo para restablecer tu contraseña a $email.',
+      firebase_auth.UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-    } on FirebaseAuthException catch (e) {
+      if (!userCredential.user!.emailVerified) {
+        await userCredential.user!.sendEmailVerification();
+        _showMessage(
+          'Se ha enviado un correo de verificación a $email. Por favor, verifica tu cuenta antes de iniciar sesión.',
+        );
+      }
+
+      // Guardar el estado de `completedQuestionnaire` en SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setBool(
+          'completedQuestionnaire_${userCredential.user!.uid}', false);
+    } on firebase_auth.FirebaseAuthException catch (e) {
       _showMessage(_getFirebaseAuthErrorMessage(e.code));
     } finally {
       _setLoading(false);
     }
-  }
-
-  Future<void> _resendVerificationEmail() async {
-    try {
-      User? user = _auth.currentUser;
-      if (user != null && !user.emailVerified) {
-        await user.sendEmailVerification();
-        _showMessage('Correo de verificación reenviado a ${user.email}.');
-      } else {
-        _showMessage('El usuario ya está verificado o no está autenticado.');
-      }
-    } catch (e) {
-      _showMessage('Error al reenviar correo de verificación.');
-    }
-  }
-
-  Future<User?> signInWithGoogle() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-    if (googleUser == null) return null;
-
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
-    final OAuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    return (await _auth.signInWithCredential(credential)).user;
   }
 
   Future<void> _showMessage(String message) async {
@@ -246,32 +272,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Text('Reenviar confirmación de cuenta'),
                         ),
                         Spacer(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ElevatedButton.icon(
-                              onPressed: _isLoading
-                                  ? null
-                                  : () async {
-                                      User? user = await signInWithGoogle();
-                                      if (user != null) {
-                                        print(
-                                            'Google Sign-In Successful: ${user.email}');
-                                      }
-                                    },
-                              icon: FaIcon(FontAwesomeIcons.google,
-                                  color: Colors.white),
-                              label: Text('Google'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 20),
                       ],
                     ),
                   ),

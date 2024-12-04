@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:panthers_gym/screens/home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'home_screen.dart';
 
 class CuestionarioScreen extends StatefulWidget {
   @override
@@ -11,11 +12,11 @@ class _CuestionarioScreenState extends State<CuestionarioScreen> {
   int _selectedOption = -1; // Para seleccionar la opción en Cuestionario 1
   int _currentIndex = 0; // Índice de la pantalla actual en el PageView
 
-  // Listas para cuestionario 2
-  final List<int> alturas = List.generate(121, (index) => 100 + index);
-  final List<int> pesos =
-      List.generate(201, (index) => 40 + index); // 40kg a 240kg
-  final List<int> edades = List.generate(86, (index) => 14 + index);
+  // Variables para almacenar datos personales
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _heightController = TextEditingController();
+  final TextEditingController _weightController = TextEditingController();
+  String? _selectedGender;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,7 @@ class _CuestionarioScreenState extends State<CuestionarioScreen> {
         backgroundColor: Color(0xFF0047AB),
         centerTitle: true,
         title: Text(
-          'Informacion Personal',
+          'Información Personal',
           style: TextStyle(color: Colors.white),
         ),
       ),
@@ -50,8 +51,7 @@ class _CuestionarioScreenState extends State<CuestionarioScreen> {
           ),
           // Indicador de progreso en la posición deseada
           Padding(
-            padding: const EdgeInsets.only(
-                bottom: 16.0), // Espaciado desde la parte inferior
+            padding: const EdgeInsets.only(bottom: 16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(3, (index) {
@@ -129,15 +129,12 @@ class _CuestionarioScreenState extends State<CuestionarioScreen> {
 
   // Cuestionario 2
   Widget _buildCuestionario2() {
-    String? _selectedGender; // Variable para almacenar la selección de género
-
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Título
             Text(
               'Datos Personales',
               textAlign: TextAlign.center,
@@ -147,6 +144,7 @@ class _CuestionarioScreenState extends State<CuestionarioScreen> {
 
             // Campo de texto para nombre
             TextField(
+              controller: _nameController,
               decoration: InputDecoration(
                 labelText: 'Nombre',
                 border: OutlineInputBorder(),
@@ -156,7 +154,8 @@ class _CuestionarioScreenState extends State<CuestionarioScreen> {
 
             // Campo numérico para altura
             TextField(
-              keyboardType: TextInputType.number, // Teclado numérico
+              controller: _heightController,
+              keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: 'Altura (cm)',
                 border: OutlineInputBorder(),
@@ -166,7 +165,8 @@ class _CuestionarioScreenState extends State<CuestionarioScreen> {
 
             // Campo numérico para peso
             TextField(
-              keyboardType: TextInputType.number, // Teclado numérico
+              controller: _weightController,
+              keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: 'Peso (kg)',
                 border: OutlineInputBorder(),
@@ -221,7 +221,7 @@ class _CuestionarioScreenState extends State<CuestionarioScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Lottie.asset(
-              'assets/empecemos.json', // Ruta al archivo Lottie
+              'assets/lotties/empecemos.json',
               height: 200,
             ),
             SizedBox(height: 20),
@@ -232,15 +232,10 @@ class _CuestionarioScreenState extends State<CuestionarioScreen> {
             ),
             SizedBox(height: 70),
             ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomeScreen()),
-                );
-              },
+              onPressed: _completeQuestionnaire,
               child: Text(
-                'Empecemos',
-                style: TextStyle(color: Colors.white), // Texto en blanco
+                'Finalizar',
+                style: TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF0047AB),
@@ -250,6 +245,24 @@ class _CuestionarioScreenState extends State<CuestionarioScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  // Función para finalizar el cuestionario
+  Future<void> _completeQuestionnaire() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Guardar los datos en SharedPreferences
+    await prefs.setBool('completedQuestionnaire', true);
+    await prefs.setString('name', _nameController.text);
+    await prefs.setString('height', _heightController.text);
+    await prefs.setString('weight', _weightController.text);
+    await prefs.setString('gender', _selectedGender ?? '');
+
+    // Redirigir a HomeScreen
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HomeScreen()),
     );
   }
 
