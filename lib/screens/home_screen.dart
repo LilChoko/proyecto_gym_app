@@ -100,6 +100,7 @@ class HomeScreen extends StatelessWidget {
                 physics: NeverScrollableScrollPhysics(),
                 children: [
                   _buildIconButton(
+                    context: context,
                     icon: Icons.person,
                     label: 'Perfil',
                     size: size,
@@ -113,6 +114,7 @@ class HomeScreen extends StatelessWidget {
                     },
                   ),
                   _buildIconButton(
+                    context: context,
                     icon: Icons.monitor_weight,
                     label: 'Control\nPeso',
                     size: size,
@@ -125,6 +127,7 @@ class HomeScreen extends StatelessWidget {
                     },
                   ),
                   _buildIconButton(
+                    context: context,
                     icon: Icons.fitness_center,
                     label: 'Plan de\nEntrenamiento',
                     size: size,
@@ -138,6 +141,7 @@ class HomeScreen extends StatelessWidget {
                     },
                   ),
                   _buildIconButton(
+                    context: context,
                     icon: Icons.lightbulb,
                     label: 'Consejos',
                     size: size,
@@ -151,6 +155,7 @@ class HomeScreen extends StatelessWidget {
                     },
                   ),
                   _buildIconButton(
+                    context: context,
                     icon: Icons.calendar_month_rounded,
                     label: 'Calendario',
                     size: size,
@@ -160,15 +165,17 @@ class HomeScreen extends StatelessWidget {
                     },
                   ),
                   _buildIconButton(
+                    context: context,
                     icon: Icons.shopping_cart,
-                    label: 'Suplementos',
+                    label: 'Pagar\nMensualidad',
                     size: size,
                     isLandscape: isLandscape,
                     onPressed: () {
-                      // Función para Suplementos
+                      // Función para pago de mensualidad
                     },
                   ),
                   _buildIconButton(
+                    context: context,
                     icon: Icons.exit_to_app,
                     label: 'Cerrar\nSesion',
                     size: size,
@@ -187,6 +194,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildIconButton({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required Size size,
@@ -202,7 +210,7 @@ class HomeScreen extends StatelessWidget {
             shape: CircleBorder(),
             padding: EdgeInsets.all(
                 isLandscape ? size.width * 0.03 : size.width * 0.04),
-            backgroundColor: Color(0xFF0047AB),
+            backgroundColor: Theme.of(context).primaryColor,
           ),
           child: Icon(
             icon,
@@ -216,11 +224,10 @@ class HomeScreen extends StatelessWidget {
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: isLandscape ? size.width * 0.025 : size.width * 0.03,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ) ??
+              TextStyle(fontSize: 16, color: Colors.black),
         ),
       ],
     );

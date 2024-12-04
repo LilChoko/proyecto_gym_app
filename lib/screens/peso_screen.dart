@@ -18,9 +18,9 @@ class _PesoScreenState extends State<PesoScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF0047AB),
+        backgroundColor: Theme.of(context).primaryColor,
         leading: BackButton(
-          color: Colors.white, // Botón para regresar
+          color: Colors.white,
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -31,10 +31,10 @@ class _PesoScreenState extends State<PesoScreen> {
         centerTitle: true,
         title: Text(
           'Control de Peso',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: isLandscape ? size.width * 0.035 : size.width * 0.05,
-          ),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Colors.white,
+                fontSize: isLandscape ? size.width * 0.035 : size.width * 0.05,
+              ),
         ),
         actions: [
           IconButton(
@@ -50,19 +50,17 @@ class _PesoScreenState extends State<PesoScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Título
             Text(
               'Historial de Peso',
-              style: TextStyle(
-                fontSize: isLandscape ? size.width * 0.03 : size.width * 0.05,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF0047AB),
-              ),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontSize:
+                        isLandscape ? size.width * 0.03 : size.width * 0.05,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: size.height * 0.02),
-
-            // Animación Lottie
             Center(
               child: Lottie.asset(
                 'assets/bascula.json',
@@ -72,19 +70,17 @@ class _PesoScreenState extends State<PesoScreen> {
               ),
             ),
             SizedBox(height: size.height * 0.03),
-
-            // Lista de registros dinámicos
             Expanded(
               child: _historialPeso.isEmpty
                   ? Center(
                       child: Text(
                         'No hay registros aún',
-                        style: TextStyle(
-                          fontSize: isLandscape
-                              ? size.width * 0.03
-                              : size.width * 0.04,
-                          color: Colors.grey,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontSize: isLandscape
+                                  ? size.width * 0.03
+                                  : size.width * 0.04,
+                              color: Colors.grey,
+                            ),
                       ),
                     )
                   : ListView.builder(
@@ -92,7 +88,12 @@ class _PesoScreenState extends State<PesoScreen> {
                       itemBuilder: (context, index) {
                         final registro = _historialPeso[index];
                         return _buildDismissibleCard(
-                            context, size, isLandscape, index, registro);
+                          context,
+                          size,
+                          isLandscape,
+                          index,
+                          registro,
+                        );
                       },
                     ),
             ),
@@ -102,12 +103,11 @@ class _PesoScreenState extends State<PesoScreen> {
     );
   }
 
-  // Construir tarjeta de registro con deslizable
   Widget _buildDismissibleCard(BuildContext context, Size size,
       bool isLandscape, int index, Map<String, String> registro) {
     return Dismissible(
       key: Key(registro['fecha']! + registro['peso']!),
-      direction: DismissDirection.endToStart, // Deslizar de derecha a izquierda
+      direction: DismissDirection.endToStart,
       background: Container(
         margin: EdgeInsets.symmetric(vertical: isLandscape ? 3 : 5),
         decoration: BoxDecoration(
@@ -144,19 +144,18 @@ class _PesoScreenState extends State<PesoScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Ícono y texto del registro
               Row(
                 children: [
                   Container(
                     padding: EdgeInsets.all(
                         size.width * (isLandscape ? 0.015 : 0.02)),
                     decoration: BoxDecoration(
-                      color: Color(0xFF0047AB).withOpacity(0.1),
+                      color: Theme.of(context).primaryColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
                       Icons.scale_rounded,
-                      color: Color(0xFF0047AB),
+                      color: Theme.of(context).primaryColor,
                       size: size.width * (isLandscape ? 0.04 : 0.06),
                     ),
                   ),
@@ -166,19 +165,17 @@ class _PesoScreenState extends State<PesoScreen> {
                     children: [
                       Text(
                         'Fecha: ${registro['fecha']!}',
-                        style: TextStyle(
-                          fontSize: size.width * (isLandscape ? 0.03 : 0.04),
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontSize:
+                                  size.width * (isLandscape ? 0.03 : 0.04),
+                            ),
                       ),
                       Text(
                         'Peso: ${registro['peso']} Kg',
-                        style: TextStyle(
-                          fontSize: size.width * (isLandscape ? 0.03 : 0.04),
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontSize:
+                                  size.width * (isLandscape ? 0.03 : 0.04),
+                            ),
                       ),
                     ],
                   ),
@@ -191,7 +188,6 @@ class _PesoScreenState extends State<PesoScreen> {
     );
   }
 
-  // Mostrar el cuadro modal para agregar un nuevo peso
   void _showAddWeightModal(BuildContext context, Size size, bool isLandscape) {
     final _pesoController = TextEditingController();
     DateTime? _selectedDate;
@@ -204,7 +200,6 @@ class _PesoScreenState extends State<PesoScreen> {
       ),
       builder: (BuildContext context) {
         return SingleChildScrollView(
-          // Permite que el modal sea desplazable
           child: Padding(
             padding: EdgeInsets.only(
               left: size.width * 0.05,
@@ -217,16 +212,15 @@ class _PesoScreenState extends State<PesoScreen> {
                 SizedBox(height: size.height * 0.02),
                 Text(
                   'Agregar Nuevo Peso',
-                  style: TextStyle(
-                    fontSize:
-                        isLandscape ? size.width * 0.035 : size.width * 0.05,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF0047AB),
-                  ),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontSize: isLandscape
+                            ? size.width * 0.035
+                            : size.width * 0.05,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).primaryColor,
+                      ),
                 ),
                 SizedBox(height: size.height * 0.02),
-
-                // Selector de fecha
                 GestureDetector(
                   onTap: () async {
                     final pickedDate = await showDatePicker(
@@ -257,22 +251,18 @@ class _PesoScreenState extends State<PesoScreen> {
                           _selectedDate != null
                               ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
                               : 'Seleccionar Fecha',
-                          style: TextStyle(
-                            fontSize: isLandscape
-                                ? size.width * 0.035
-                                : size.width * 0.04,
-                            color: Colors.black54,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Colors.grey,
+                                  ),
                         ),
-                        Icon(Icons.calendar_today, color: Color(0xFF0047AB)),
+                        Icon(Icons.calendar_today,
+                            color: Theme.of(context).primaryColor),
                       ],
                     ),
                   ),
                 ),
-
                 SizedBox(height: size.height * 0.02),
-
-                // Campo para ingresar peso
                 TextField(
                   controller: _pesoController,
                   decoration: InputDecoration(
@@ -281,10 +271,7 @@ class _PesoScreenState extends State<PesoScreen> {
                   ),
                   keyboardType: TextInputType.number,
                 ),
-
                 SizedBox(height: size.height * 0.03),
-
-                // Botón para guardar
                 ElevatedButton(
                   onPressed: () {
                     if (_selectedDate != null &&
@@ -296,11 +283,11 @@ class _PesoScreenState extends State<PesoScreen> {
                           'peso': _pesoController.text,
                         });
                       });
-                      Navigator.pop(context); // Cerrar el modal
+                      Navigator.pop(context);
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF0047AB),
+                    backgroundColor: Theme.of(context).primaryColor,
                     padding: EdgeInsets.symmetric(
                       horizontal: size.width * 0.2,
                       vertical: size.height * (isLandscape ? 0.015 : 0.02),
@@ -308,14 +295,15 @@ class _PesoScreenState extends State<PesoScreen> {
                   ),
                   child: Text(
                     'Guardar',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize:
-                          isLandscape ? size.width * 0.03 : size.width * 0.045,
-                    ),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.white,
+                          fontSize: isLandscape
+                              ? size.width * 0.03
+                              : size.width * 0.045,
+                        ),
                   ),
                 ),
-                SizedBox(height: size.height * 0.02), // Espaciado inferior
+                SizedBox(height: size.height * 0.02),
               ],
             ),
           ),
@@ -324,7 +312,6 @@ class _PesoScreenState extends State<PesoScreen> {
     );
   }
 
-  // Mostrar cuadro de confirmación para eliminar
   Future<bool?> _showDeleteConfirmation(BuildContext context) async {
     return showDialog<bool>(
       context: context,

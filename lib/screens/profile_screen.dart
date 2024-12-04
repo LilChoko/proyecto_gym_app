@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:panthers_gym/screens/home_screen.dart';
+import '../main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Obtener las dimensiones de la pantalla para diseño responsivo
     final size = MediaQuery.of(context).size;
-    final isLandscape =
-        size.width > size.height; // Detectar orientación horizontal
+    final isLandscape = size.width > size.height;
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF0047AB),
+        backgroundColor: Theme.of(context).primaryColor,
         centerTitle: true,
         leading: BackButton(
-          color: Colors.white, // Botón para regresar
+          color: Colors.white,
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -26,54 +26,49 @@ class ProfileScreen extends StatelessWidget {
           'Perfil',
           style: TextStyle(color: Colors.white),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings, color: Colors.white),
+            onPressed: () {
+              _showSettingsModal(context);
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
-        // Habilitar desplazamiento
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Imagen de fondo y avatar
             Stack(
-              clipBehavior:
-                  Clip.none, // Permitir que el avatar se salga del contenedor
+              clipBehavior: Clip.none,
               children: [
                 // Imagen de fondo
                 Container(
-                  height: isLandscape
-                      ? size.height * 0.15
-                      : size.height * 0.3, // Más pequeña en horizontal
+                  height: isLandscape ? size.height * 0.15 : size.height * 0.3,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage(
-                          'assets/gym_fondo2.jpg'), // Reemplaza con tu imagen
+                      image: AssetImage('assets/gym_fondo2.jpg'),
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
                 // Avatar encima de la imagen
                 Positioned(
-                  bottom: isLandscape
-                      ? -size.width * 0.03
-                      : -size.width * 0.1, // Más arriba en horizontal
-                  left:
-                      size.width * 0.05, // Ajustar el avatar hacia la izquierda
+                  bottom: isLandscape ? -size.width * 0.03 : -size.width * 0.1,
+                  left: size.width * 0.05,
                   child: CircleAvatar(
-                    radius: isLandscape
-                        ? size.width * 0.08
-                        : size.width * 0.15, // Aún más pequeño en horizontal
+                    radius: isLandscape ? size.width * 0.08 : size.width * 0.15,
                     backgroundColor: Colors.white,
                     backgroundImage: AssetImage(
-                      'assets/avatar.jpg', // Imagen del avatar
+                      'assets/avatar.jpg',
                     ),
                   ),
                 ),
               ],
             ),
             SizedBox(
-                height: isLandscape
-                    ? size.height * 0.05
-                    : size.height * 0.15), // Ajustar el espaciado
-
+                height: isLandscape ? size.height * 0.05 : size.height * 0.15),
             // Contenido principal
             Padding(
               padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
@@ -83,18 +78,12 @@ class ProfileScreen extends StatelessWidget {
                   // Título
                   Text(
                     'Tu Información',
-                    style: TextStyle(
-                      fontSize: isLandscape
-                          ? size.width * 0.035
-                          : size.width * 0.06, // Más pequeño en horizontal
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0047AB),
-                    ),
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).primaryColor,
+                        ),
                   ),
-                  SizedBox(
-                      height:
-                          size.height * 0.02), // Espaciado entre título y datos
-
+                  SizedBox(height: size.height * 0.02),
                   // Información del usuario
                   _buildUserInfoRow(
                     icon: Icons.person,
@@ -102,6 +91,7 @@ class ProfileScreen extends StatelessWidget {
                     value: 'Brazo de 35',
                     size: size,
                     isLandscape: isLandscape,
+                    context: context,
                   ),
                   SizedBox(height: size.height * 0.015),
                   _buildUserInfoRow(
@@ -110,6 +100,7 @@ class ProfileScreen extends StatelessWidget {
                     value: '175 cm',
                     size: size,
                     isLandscape: isLandscape,
+                    context: context,
                   ),
                   SizedBox(height: size.height * 0.015),
                   _buildUserInfoRow(
@@ -118,6 +109,7 @@ class ProfileScreen extends StatelessWidget {
                     value: '70 kg',
                     size: size,
                     isLandscape: isLandscape,
+                    context: context,
                   ),
                 ],
               ),
@@ -135,31 +127,142 @@ class ProfileScreen extends StatelessWidget {
     required String value,
     required Size size,
     required bool isLandscape,
+    required BuildContext context,
   }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Icon(
           icon,
-          color: Color(0xFF0047AB),
-          size: isLandscape
-              ? size.width * 0.04
-              : size.width * 0.07, // Más pequeño en horizontal
+          color: Theme.of(context).primaryColor,
+          size: isLandscape ? size.width * 0.04 : size.width * 0.07,
         ),
         SizedBox(width: size.width * 0.04),
         Expanded(
           child: Text(
             '$label: $value',
-            style: TextStyle(
-              fontSize: isLandscape
-                  ? size.width * 0.03
-                  : size.width * 0.045, // Más pequeño en horizontal
-              fontWeight: FontWeight.w500,
-              color: Colors.black,
-            ),
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
           ),
         ),
       ],
     );
   }
+
+  // Mostrar el modal para configuración de fuentes y temas
+  void _showSettingsModal(BuildContext context) {
+    final List<String> availableFonts = [
+      'Roboto',
+      'OpenSans',
+      'Lobster',
+      'Poppins',
+      'Merriweather'
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Configuraciones Visuales',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Configurar Fuente',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                ValueListenableBuilder(
+                  valueListenable: selectedFontNotifier,
+                  builder: (context, selectedFont, _) {
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: availableFonts.length,
+                      itemBuilder: (context, index) {
+                        final font = availableFonts[index];
+                        final isSelected = font == selectedFont;
+
+                        return ListTile(
+                          title: Text(
+                            font,
+                            style: TextStyle(fontFamily: font),
+                          ),
+                          trailing: isSelected
+                              ? Icon(Icons.check, color: Color(0xFF0047AB))
+                              : null,
+                          onTap: () {
+                            selectedFontNotifier.value = font; // Cambiar fuente
+                            saveFontPreference(
+                                font); // Guardar fuente seleccionada
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Configurar Tema',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                ValueListenableBuilder(
+                  valueListenable: themeModeNotifier,
+                  builder: (context, themeMode, _) {
+                    return Column(
+                      children: [
+                        ListTile(
+                          title: Text('Tema de Día'),
+                          trailing: themeMode == ThemeMode.light
+                              ? Icon(Icons.check, color: Color(0xFF0047AB))
+                              : null,
+                          onTap: () {
+                            themeModeNotifier.value =
+                                ThemeMode.light; // Tema claro
+                            saveThemePreference(false); // Guardar preferencia
+                          },
+                        ),
+                        ListTile(
+                          title: Text('Tema de Noche'),
+                          trailing: themeMode == ThemeMode.dark
+                              ? Icon(Icons.check, color: Color(0xFF0047AB))
+                              : null,
+                          onTap: () {
+                            themeModeNotifier.value =
+                                ThemeMode.dark; // Tema oscuro
+                            saveThemePreference(true); // Guardar preferencia
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// Guardar el tema seleccionado
+Future<void> saveThemePreference(bool isDark) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('isDarkTheme', isDark);
+}
+
+// Cargar el tema seleccionado
+Future<void> loadThemePreference() async {
+  final prefs = await SharedPreferences.getInstance();
+  final isDark = prefs.getBool('isDarkTheme') ?? false;
+  themeModeNotifier.value = isDark ? ThemeMode.dark : ThemeMode.light;
 }

@@ -31,10 +31,12 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Color(0xFF0047AB),
+        backgroundColor: Theme.of(context).primaryColor,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.settings, color: Colors.white),
@@ -71,6 +73,7 @@ class LoginScreen extends StatelessWidget {
                     TextField(
                       decoration: InputDecoration(
                         labelText: 'Correo electrónico',
+                        labelStyle: textTheme.bodyMedium,
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -79,6 +82,7 @@ class LoginScreen extends StatelessWidget {
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'Contraseña',
+                        labelStyle: textTheme.bodyMedium,
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -95,7 +99,12 @@ class LoginScreen extends StatelessWidget {
                           },
                           icon: FaIcon(FontAwesomeIcons.google,
                               color: Colors.white),
-                          label: Text('Google'),
+                          label: Text(
+                            'Google',
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
                             shape: RoundedRectangleBorder(
@@ -112,7 +121,12 @@ class LoginScreen extends StatelessWidget {
                           },
                           icon: FaIcon(FontAwesomeIcons.github,
                               color: Colors.white),
-                          label: Text('GitHub'),
+                          label: Text(
+                            'GitHub',
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black,
                             shape: RoundedRectangleBorder(
@@ -128,11 +142,17 @@ class LoginScreen extends StatelessWidget {
                       children: [
                         TextButton(
                           onPressed: () {},
-                          child: Text('¿Olvidaste tu contraseña?'),
+                          child: Text(
+                            '¿No tienes cuenta? Regístrate',
+                            style: textTheme.bodyMedium,
+                          ),
                         ),
                         TextButton(
                           onPressed: () {},
-                          child: Text('¿No tienes cuenta? Regístrate'),
+                          child: Text(
+                            '¿Olvidaste tu contraseña?',
+                            style: textTheme.bodyMedium,
+                          ),
                         ),
                       ],
                     ),

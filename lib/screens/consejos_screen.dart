@@ -31,13 +31,13 @@ class _ConsejosScreenState extends State<ConsejosScreen> {
       'title': 'Consejo 4: Descanso',
       'content':
           'El descanso es crucial para la recuperación muscular. Asegúrate de dormir lo suficiente y dar tiempo a tus músculos para recuperarse.',
-      'lottie': 'assets/tip1.json',
+      'lottie': 'assets/tip4.json',
     },
     {
       'title': 'Consejo 5: Alimentación',
       'content':
           'Lleva una alimentación balanceada que incluya proteínas, carbohidratos y grasas saludables para optimizar tus entrenamientos.',
-      'lottie': 'assets/tip2.json',
+      'lottie': 'assets/tip5.json',
     },
   ];
 
@@ -45,14 +45,16 @@ class _ConsejosScreenState extends State<ConsejosScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
     final size = MediaQuery.of(context).size;
     final isLandscape = size.width > size.height;
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF0047AB),
+        backgroundColor: theme.primaryColor,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onPrimary),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -62,7 +64,8 @@ class _ConsejosScreenState extends State<ConsejosScreen> {
         ),
         title: Text(
           'Consejos',
-          style: TextStyle(color: Colors.white),
+          style: textTheme.titleLarge
+              ?.copyWith(color: theme.colorScheme.onPrimary),
         ),
         centerTitle: true,
       ),
@@ -83,6 +86,7 @@ class _ConsejosScreenState extends State<ConsejosScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
+              color: theme.cardColor,
               child: GestureDetector(
                 onTap: () {
                   setState(() {
@@ -98,12 +102,12 @@ class _ConsejosScreenState extends State<ConsejosScreen> {
                     padding: EdgeInsets.all(size.width * 0.04),
                     child: Text(
                       consejo['title']!,
-                      style: TextStyle(
+                      style: textTheme.bodyLarge?.copyWith(
                         fontSize: isLandscape
                             ? size.width * 0.025
                             : size.width * 0.045,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0047AB),
+                        color: theme.primaryColor,
                       ),
                     ),
                   ),
@@ -114,12 +118,12 @@ class _ConsejosScreenState extends State<ConsejosScreen> {
                       children: [
                         Text(
                           consejo['title']!,
-                          style: TextStyle(
+                          style: textTheme.bodyLarge?.copyWith(
                             fontSize: isLandscape
                                 ? size.width * 0.025
                                 : size.width * 0.045,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF0047AB),
+                            color: theme.primaryColor,
                           ),
                         ),
                         SizedBox(height: size.height * 0.02),
@@ -134,11 +138,11 @@ class _ConsejosScreenState extends State<ConsejosScreen> {
                         SizedBox(height: size.height * 0.02),
                         Text(
                           consejo['content']!,
-                          style: TextStyle(
+                          style: textTheme.bodyMedium?.copyWith(
                             fontSize: isLandscape
                                 ? size.width * 0.02
                                 : size.width * 0.04,
-                            color: Colors.black87,
+                            color: theme.colorScheme.onSurface,
                           ),
                           textAlign: TextAlign.center,
                         ),

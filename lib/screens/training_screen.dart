@@ -10,11 +10,9 @@ import 'package:panthers_gym/splits/upperlower_screen.dart';
 class TrainingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Obtener el tamaño de la pantalla para diseño responsivo
     final size = MediaQuery.of(context).size;
     final isLandscape = size.width > size.height;
 
-    // Lista de datos para las tarjetas
     final List<Map<String, String>> trainingPrograms = [
       {'title': 'Heavy Duty', 'image': 'assets/heavy.jpg'},
       {'title': 'Arnold Split', 'image': 'assets/arnold1.jpg'},
@@ -26,9 +24,9 @@ class TrainingScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF0047AB),
+        backgroundColor: Theme.of(context).primaryColor,
         leading: BackButton(
-          color: Colors.white, // Botón para regresar
+          color: Colors.white,
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -39,7 +37,9 @@ class TrainingScreen extends StatelessWidget {
         centerTitle: true,
         title: Text(
           'Training Plan',
-          style: TextStyle(color: Colors.white),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Colors.white,
+              ),
         ),
       ),
       body: Padding(
@@ -52,12 +52,12 @@ class TrainingScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             final program = trainingPrograms[index];
             return _buildTrainingCard(
-              context: context, // Contexto para la navegación
+              context: context,
               title: program['title']!,
               imagePath: program['image']!,
               size: size,
               isLandscape: isLandscape,
-              index: index, // Pasar el índice de la tarjeta
+              index: index,
             );
           },
         ),
@@ -65,14 +65,13 @@ class TrainingScreen extends StatelessWidget {
     );
   }
 
-  // Widget para construir una tarjeta de entrenamiento
   Widget _buildTrainingCard({
-    required BuildContext context, // Agregar contexto para navegación
+    required BuildContext context,
     required String title,
     required String imagePath,
     required Size size,
     required bool isLandscape,
-    required int index, // Índice para identificar la tarjeta
+    required int index,
   }) {
     return Card(
       elevation: 5,
@@ -80,7 +79,6 @@ class TrainingScreen extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Stack(
         children: [
-          // Imagen de fondo con opacidad
           ClipRRect(
             borderRadius: BorderRadius.circular(15),
             child: Stack(
@@ -91,26 +89,25 @@ class TrainingScreen extends StatelessWidget {
                   width: double.infinity,
                   fit: BoxFit.cover,
                 ),
-                // Capa semitransparente encima de la imagen
                 Container(
                   height: isLandscape ? size.height * 0.3 : size.height * 0.2,
                   width: double.infinity,
-                  color: Colors.black.withOpacity(0.4), // Ajusta la opacidad
+                  color: Colors.black.withOpacity(0.4),
                 ),
               ],
             ),
           ),
-          // Contenido encima de la imagen
           Positioned(
             top: size.height * 0.02,
             left: size.width * 0.05,
             child: Text(
               'Entrenamiento',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: isLandscape ? size.width * 0.03 : size.width * 0.04,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize:
+                        isLandscape ? size.width * 0.03 : size.width * 0.04,
+                  ),
             ),
           ),
           Positioned(
@@ -118,11 +115,12 @@ class TrainingScreen extends StatelessWidget {
             left: size.width * 0.05,
             child: Text(
               title,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: isLandscape ? size.width * 0.045 : size.width * 0.06,
-              ),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize:
+                        isLandscape ? size.width * 0.045 : size.width * 0.06,
+                  ),
             ),
           ),
           Positioned(
@@ -130,7 +128,6 @@ class TrainingScreen extends StatelessWidget {
             right: size.width * 0.05,
             child: ElevatedButton(
               onPressed: () {
-                // Navegar a la pantalla correspondiente según el índice
                 if (index == 0) {
                   Navigator.push(
                     context,
@@ -170,7 +167,7 @@ class TrainingScreen extends StatelessWidget {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF0047AB),
+                backgroundColor: Theme.of(context).primaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -181,10 +178,11 @@ class TrainingScreen extends StatelessWidget {
               ),
               child: Text(
                 'Detalles',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: isLandscape ? size.width * 0.03 : size.width * 0.04,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.white,
+                      fontSize:
+                          isLandscape ? size.width * 0.03 : size.width * 0.04,
+                    ),
               ),
             ),
           ),
