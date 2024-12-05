@@ -1,105 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:panthers_gym/providers/upperlower_provider.dart';
 import 'package:panthers_gym/screens/training_screen.dart';
+import 'package:provider/provider.dart';
 
-class UpperLowerScreen extends StatefulWidget {
-  @override
-  _UpperLowerScreenState createState() => _UpperLowerScreenState();
-}
-
-class _UpperLowerScreenState extends State<UpperLowerScreen> {
-  final Map<String, List<Map<String, String>>> _workoutDays = {
-    'Lunes (Parte Superior)': [
-      {'name': 'Press de banca', 'series': 'Series: 4', 'reps': 'Reps: 10'},
-      {'name': 'Dominadas', 'series': 'Series: 4', 'reps': 'Reps: 8'},
-      {'name': 'Press militar', 'series': 'Series: 3', 'reps': 'Reps: 10'},
-      {'name': 'Remo con barra', 'series': 'Series: 4', 'reps': 'Reps: 10'},
-      {
-        'name': 'Curl de bíceps con barra',
-        'series': 'Series: 3',
-        'reps': 'Reps: 12'
-      },
-      {
-        'name': 'Extensiones de tríceps en polea',
-        'series': 'Series: 3',
-        'reps': 'Reps: 15'
-      },
-    ],
-    'Martes (Parte Inferior)': [
-      {'name': 'Sentadillas', 'series': 'Series: 4', 'reps': 'Reps: 10'},
-      {'name': 'Peso muerto rumano', 'series': 'Series: 3', 'reps': 'Reps: 8'},
-      {'name': 'Prensa de piernas', 'series': 'Series: 4', 'reps': 'Reps: 12'},
-      {'name': 'Curl de piernas', 'series': 'Series: 3', 'reps': 'Reps: 10'},
-      {
-        'name': 'Elevaciones de talones',
-        'series': 'Series: 3',
-        'reps': 'Reps: 15'
-      },
-      {'name': 'Abdominales', 'series': '', 'reps': '(Crunches, Plancha)'},
-    ],
-    'Jueves (Parte Superior)': [
-      {
-        'name': 'Press inclinado con mancuernas',
-        'series': 'Series: 4',
-        'reps': 'Reps: 10'
-      },
-      {
-        'name': 'Remo con mancuernas',
-        'series': 'Series: 4',
-        'reps': 'Reps: 12'
-      },
-      {
-        'name': 'Elevaciones laterales',
-        'series': 'Series: 3',
-        'reps': 'Reps: 12'
-      },
-      {
-        'name': 'Fondos en paralelas',
-        'series': 'Series: 3',
-        'reps': 'Reps: 10'
-      },
-      {
-        'name': 'Curl de bíceps con mancuernas',
-        'series': 'Series: 3',
-        'reps': 'Reps: 12'
-      },
-      {
-        'name': 'Extension en agarre V',
-        'series': 'Series: 3',
-        'reps': 'Reps: 15'
-      },
-    ],
-    'Viernes (Parte Inferior)': [
-      {
-        'name': 'Sentadillas frontales',
-        'series': 'Series: 4',
-        'reps': 'Reps: 10'
-      },
-      {
-        'name': 'Peso muerto convencional',
-        'series': 'Series: 4',
-        'reps': 'Reps: 6'
-      },
-      {'name': 'Zancadas', 'series': 'Series: 3', 'reps': 'Reps: 12'},
-      {
-        'name': 'Elevaciones de talones sentado',
-        'series': 'Series: 3',
-        'reps': 'Reps: 15'
-      },
-      {'name': 'Planchas', 'series': 'Series: 3', 'reps': 'Reps: 60 segundos'},
-      {
-        'name': 'Elevaciones de piernas',
-        'series': 'Series 4',
-        'reps': 'Reps: 20'
-      },
-    ],
-  };
-
+class UpperLowerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final size = MediaQuery.of(context).size;
     final isLandscape = size.width > size.height;
+
+    final provider = Provider.of<UpperLowerProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -136,11 +48,18 @@ class _UpperLowerScreenState extends State<UpperLowerScreen> {
             SizedBox(height: size.height * (isLandscape ? 0.005 : 0.02)),
             Expanded(
               child: ListView.builder(
-                itemCount: _workoutDays.keys.length,
+                itemCount: provider.workoutDays.keys.length,
                 itemBuilder: (context, index) {
-                  final day = _workoutDays.keys.elementAt(index);
+                  final day = provider.workoutDays.keys.elementAt(index);
                   return _buildDayCard(
-                      day, size, isLandscape, theme, textTheme);
+                    context,
+                    day,
+                    size,
+                    isLandscape,
+                    theme,
+                    textTheme,
+                    provider,
+                  );
                 },
               ),
             ),
@@ -150,11 +69,19 @@ class _UpperLowerScreenState extends State<UpperLowerScreen> {
     );
   }
 
-  Widget _buildDayCard(String day, Size size, bool isLandscape, ThemeData theme,
-      TextTheme textTheme) {
+  Widget _buildDayCard(
+    BuildContext context,
+    String day,
+    Size size,
+    bool isLandscape,
+    ThemeData theme,
+    TextTheme textTheme,
+    UpperLowerProvider provider,
+  ) {
     return GestureDetector(
       onTap: () {
-        _showExerciseModal(context, day, size, isLandscape, theme, textTheme);
+        _showExerciseModal(
+            context, day, size, isLandscape, theme, textTheme, provider);
       },
       child: Card(
         elevation: 5,
@@ -185,9 +112,16 @@ class _UpperLowerScreenState extends State<UpperLowerScreen> {
     );
   }
 
-  void _showExerciseModal(BuildContext context, String day, Size size,
-      bool isLandscape, ThemeData theme, TextTheme textTheme) {
-    final exercises = _workoutDays[day]!;
+  void _showExerciseModal(
+    BuildContext context,
+    String day,
+    Size size,
+    bool isLandscape,
+    ThemeData theme,
+    TextTheme textTheme,
+    UpperLowerProvider provider,
+  ) {
+    final exercises = provider.workoutDays[day]!;
 
     showModalBottomSheet(
       context: context,
@@ -240,8 +174,15 @@ class _UpperLowerScreenState extends State<UpperLowerScreen> {
     );
   }
 
-  Widget _buildExerciseCard(String name, String series, String reps, Size size,
-      bool isLandscape, ThemeData theme, TextTheme textTheme) {
+  Widget _buildExerciseCard(
+    String name,
+    String series,
+    String reps,
+    Size size,
+    bool isLandscape,
+    ThemeData theme,
+    TextTheme textTheme,
+  ) {
     return Card(
       elevation: 3,
       margin: EdgeInsets.symmetric(

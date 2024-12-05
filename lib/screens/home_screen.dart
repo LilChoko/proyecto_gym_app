@@ -1,7 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:panthers_gym/providers/auth_provider.dart' as custom_auth;
 import 'package:panthers_gym/screens/login_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:provider/provider.dart';
 import 'profile_screen.dart';
 import 'peso_screen.dart';
 import 'training_screen.dart';
@@ -13,11 +14,13 @@ class HomeScreen extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     final isLandscape = size.width > size.height;
 
+    final authProvider = Provider.of<custom_auth.AuthProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF0047AB),
+        backgroundColor: const Color(0xFF0047AB),
         centerTitle: true,
-        title: Text(
+        title: const Text(
           'Inicio',
           style: TextStyle(color: Colors.white),
         ),
@@ -43,44 +46,24 @@ class HomeScreen extends StatelessWidget {
                   left: 16,
                   child: Row(
                     children: [
-                      Container(
-                        width:
-                            isLandscape ? size.width * 0.1 : size.width * 0.15,
-                        height:
-                            isLandscape ? size.width * 0.1 : size.width * 0.15,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.8),
-                        ),
-                        child: Icon(
-                          Icons.fitness_center,
-                          color: Color(0xFF0047AB),
-                          size: isLandscape
-                              ? size.width * 0.05
-                              : size.width * 0.07,
-                        ),
-                      ),
-                      SizedBox(width: size.width * 0.04),
+                      _buildWelcomeIcon(size, isLandscape),
+                      const SizedBox(width: 16),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Bienvenido',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: isLandscape
-                                  ? size.width * 0.035
-                                  : size.width * 0.045,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
-                            'Brazo de 35',
-                            style: TextStyle(
+                            authProvider.userName ?? 'Invitado',
+                            style: const TextStyle(
                               color: Colors.white,
-                              fontSize: isLandscape
-                                  ? size.width * 0.03
-                                  : size.width * 0.04,
+                              fontSize: 16,
                             ),
                           ),
                         ],
@@ -91,7 +74,6 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
             SizedBox(height: size.height * 0.02),
-
             // Botones en el centro de la pantalla (GridView adaptable)
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -100,7 +82,7 @@ class HomeScreen extends StatelessWidget {
                 crossAxisSpacing: size.width * 0.03,
                 mainAxisSpacing: size.height * 0.03,
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
                   _buildIconButton(
                     context: context,
@@ -164,7 +146,7 @@ class HomeScreen extends StatelessWidget {
                     size: size,
                     isLandscape: isLandscape,
                     onPressed: () {
-                      // Función para calendario
+                      // Lógica para calendario
                     },
                   ),
                   _buildIconButton(
@@ -174,7 +156,7 @@ class HomeScreen extends StatelessWidget {
                     size: size,
                     isLandscape: isLandscape,
                     onPressed: () {
-                      // Función para pago de mensualidad
+                      // Lógica para pago de mensualidad
                     },
                   ),
                   _buildIconButton(
@@ -184,14 +166,11 @@ class HomeScreen extends StatelessWidget {
                     size: size,
                     isLandscape: isLandscape,
                     onPressed: () async {
-                      // Cerrar sesión en Firebase Auth
-                      await firebase_auth.FirebaseAuth.instance.signOut();
+                      final authProvider =
+                          Provider.of<custom_auth.AuthProvider>(context,
+                              listen: false);
 
-                      // Limpiar SharedPreferences
-                      final prefs = await SharedPreferences.getInstance();
-                      await prefs.clear();
-
-                      // Redirigir al LoginScreen
+                      await authProvider.signOut();
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -208,6 +187,24 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  // Widget para el ícono de bienvenida
+  Widget _buildWelcomeIcon(Size size, bool isLandscape) {
+    return Container(
+      width: isLandscape ? size.width * 0.1 : size.width * 0.15,
+      height: isLandscape ? size.width * 0.1 : size.width * 0.15,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white.withOpacity(0.8),
+      ),
+      child: Icon(
+        Icons.fitness_center,
+        color: const Color(0xFF0047AB),
+        size: isLandscape ? size.width * 0.05 : size.width * 0.07,
+      ),
+    );
+  }
+
+  // Widget para un botón en el grid
   Widget _buildIconButton({
     required BuildContext context,
     required IconData icon,
@@ -222,7 +219,7 @@ class HomeScreen extends StatelessWidget {
         ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
-            shape: CircleBorder(),
+            shape: const CircleBorder(),
             padding: EdgeInsets.all(
                 isLandscape ? size.width * 0.03 : size.width * 0.04),
             backgroundColor: Theme.of(context).primaryColor,
@@ -240,9 +237,8 @@ class HomeScreen extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ) ??
-              TextStyle(fontSize: 16, color: Colors.black),
+                fontWeight: FontWeight.bold,
+              ),
         ),
       ],
     );

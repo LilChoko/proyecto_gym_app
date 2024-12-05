@@ -1,47 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:panthers_gym/screens/training_screen.dart';
+import 'package:panthers_gym/providers/heavy_provider.dart';
+import 'package:provider/provider.dart';
 
-class HeavyScreen extends StatefulWidget {
-  @override
-  _HeavyScreenState createState() => _HeavyScreenState();
-}
-
-class _HeavyScreenState extends State<HeavyScreen> {
-  final Map<String, List<Map<String, String>>> _workoutDays = {
-    'Lunes (Pecho y Espalda)': [
-      {'name': 'Press de banca', 'series': 'Series: 4', 'reps': 'Reps: 10'},
-      {'name': 'Remo con barra', 'series': 'Series: 4', 'reps': 'Reps: 12'},
-      {'name': 'Press inclinado', 'series': 'Series: 3', 'reps': 'Reps: 10'},
-      {'name': 'Dominadas', 'series': 'Series: 4', 'reps': 'Reps: 8'},
-    ],
-    'Miércoles (Piernas y Abdomen)': [
-      {'name': 'Sentadillas', 'series': 'Series: 4', 'reps': 'Reps: 10'},
-      {'name': 'Peso muerto', 'series': 'Series: 4', 'reps': 'Reps: 8'},
-      {'name': 'Crunches', 'series': 'Series: 4', 'reps': 'Reps: 20'},
-      {'name': 'Plancha', 'series': 'Series: 3', 'reps': 'Duración: 60 seg'},
-    ],
-    'Viernes (Hombros y Brazos)': [
-      {'name': 'Press militar', 'series': 'Series: 4', 'reps': 'Reps: 8'},
-      {
-        'name': 'Elevaciones laterales',
-        'series': 'Series: 3',
-        'reps': 'Reps: 12'
-      },
-      {'name': 'Curl de bíceps', 'series': 'Series: 3', 'reps': 'Reps: 10'},
-      {
-        'name': 'Extensiones de tríceps',
-        'series': 'Series: 3',
-        'reps': 'Reps: 12'
-      },
-    ],
-  };
-
+class HeavyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final size = MediaQuery.of(context).size;
     final isLandscape = size.width > size.height;
+
+    final provider = Provider.of<HeavyProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -78,11 +48,18 @@ class _HeavyScreenState extends State<HeavyScreen> {
             SizedBox(height: size.height * (isLandscape ? 0.005 : 0.02)),
             Expanded(
               child: ListView.builder(
-                itemCount: _workoutDays.keys.length,
+                itemCount: provider.workoutDays.keys.length,
                 itemBuilder: (context, index) {
-                  final day = _workoutDays.keys.elementAt(index);
+                  final day = provider.workoutDays.keys.elementAt(index);
                   return _buildDayCard(
-                      day, size, isLandscape, theme, textTheme);
+                    context,
+                    day,
+                    size,
+                    isLandscape,
+                    theme,
+                    textTheme,
+                    provider,
+                  );
                 },
               ),
             ),
@@ -92,11 +69,19 @@ class _HeavyScreenState extends State<HeavyScreen> {
     );
   }
 
-  Widget _buildDayCard(String day, Size size, bool isLandscape, ThemeData theme,
-      TextTheme textTheme) {
+  Widget _buildDayCard(
+    BuildContext context,
+    String day,
+    Size size,
+    bool isLandscape,
+    ThemeData theme,
+    TextTheme textTheme,
+    HeavyProvider provider,
+  ) {
     return GestureDetector(
       onTap: () {
-        _showExerciseModal(context, day, size, isLandscape, theme, textTheme);
+        _showExerciseModal(
+            context, day, size, isLandscape, theme, textTheme, provider);
       },
       child: Card(
         elevation: 5,
@@ -127,9 +112,16 @@ class _HeavyScreenState extends State<HeavyScreen> {
     );
   }
 
-  void _showExerciseModal(BuildContext context, String day, Size size,
-      bool isLandscape, ThemeData theme, TextTheme textTheme) {
-    final exercises = _workoutDays[day]!;
+  void _showExerciseModal(
+    BuildContext context,
+    String day,
+    Size size,
+    bool isLandscape,
+    ThemeData theme,
+    TextTheme textTheme,
+    HeavyProvider provider,
+  ) {
+    final exercises = provider.workoutDays[day]!;
 
     showModalBottomSheet(
       context: context,
@@ -182,8 +174,15 @@ class _HeavyScreenState extends State<HeavyScreen> {
     );
   }
 
-  Widget _buildExerciseCard(String name, String series, String reps, Size size,
-      bool isLandscape, ThemeData theme, TextTheme textTheme) {
+  Widget _buildExerciseCard(
+    String name,
+    String series,
+    String reps,
+    Size size,
+    bool isLandscape,
+    ThemeData theme,
+    TextTheme textTheme,
+  ) {
     return Card(
       elevation: 3,
       margin: EdgeInsets.symmetric(

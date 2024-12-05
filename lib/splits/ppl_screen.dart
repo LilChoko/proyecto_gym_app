@@ -1,125 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:panthers_gym/screens/training_screen.dart';
+import 'package:panthers_gym/providers/ppl_provider.dart';
+import 'package:provider/provider.dart';
 
-class PPLScreen extends StatefulWidget {
-  @override
-  _PPLScreenState createState() => _PPLScreenState();
-}
-
-class _PPLScreenState extends State<PPLScreen> {
-  final Map<String, List<Map<String, String>>> _workoutDays = {
-    'Lunes (Push - Empuje)': [
-      {'name': 'Press de banca', 'series': 'Series: 4', 'reps': 'Reps: 10'},
-      {
-        'name': 'Press inclinado con mancuernas',
-        'series': 'Series: 4',
-        'reps': 'Reps: 12'
-      },
-      {'name': 'Press militar', 'series': 'Series: 3', 'reps': 'Reps: 10'},
-      {'name': 'Fondos en paralelas', 'series': 'Series: 4', 'reps': 'Reps: 8'},
-      {
-        'name': 'Elevaciones laterales',
-        'series': 'Series: 3',
-        'reps': 'Reps: 12'
-      },
-      {
-        'name': 'Extensiones de tríceps en polea',
-        'series': 'Series: 3',
-        'reps': 'Reps: 15'
-      },
-    ],
-    'Martes (Pull - Tracción)': [
-      {'name': 'Dominadas', 'series': 'Series: 4', 'reps': 'Reps: 8'},
-      {'name': 'Remo con barra', 'series': 'Series: 4', 'reps': 'Reps: 10'},
-      {'name': 'Peso muerto', 'series': 'Series: 4', 'reps': 'Reps: 6'},
-      {
-        'name': 'Remo con mancuernas',
-        'series': 'Series: 3',
-        'reps': 'Reps: 12'
-      },
-      {
-        'name': 'Curl de bíceps con barra',
-        'series': 'Series: 3',
-        'reps': 'Reps: 10'
-      },
-      {
-        'name': 'Curl de bíceps con mancuernas',
-        'series': 'Series: 3',
-        'reps': 'Reps: 12'
-      },
-    ],
-    'Miércoles (Legs - Piernas)': [
-      {'name': 'Sentadillas', 'series': 'Series: 4', 'reps': 'Reps: 10'},
-      {'name': 'Prensa de piernas', 'series': 'Series: 4', 'reps': 'Reps: 12'},
-      {'name': 'Peso muerto rumano', 'series': 'Series: 3', 'reps': 'Reps: 8'},
-      {'name': 'Curl de piernas', 'series': 'Series: 3', 'reps': 'Reps: 10'},
-      {
-        'name': 'Elevaciones de talones',
-        'series': 'Series: 3',
-        'reps': 'Reps: 15'
-      },
-      {'name': 'Zancadas', 'series': 'Series: 3', 'reps': 'Reps: 12'},
-    ],
-    'Jueves (Push - Empuje)': [
-      {'name': 'Press de banca', 'series': 'Series: 4', 'reps': 'Reps: 10'},
-      {
-        'name': 'Press inclinado con mancuernas',
-        'series': 'Series: 4',
-        'reps': 'Reps: 12'
-      },
-      {'name': 'Press militar', 'series': 'Series: 3', 'reps': 'Reps: 10'},
-      {'name': 'Fondos en paralelas', 'series': 'Series: 4', 'reps': 'Reps: 8'},
-      {
-        'name': 'Elevaciones laterales',
-        'series': 'Series: 3',
-        'reps': 'Reps: 12'
-      },
-      {
-        'name': 'Extensiones de tríceps en polea',
-        'series': 'Series: 3',
-        'reps': 'Reps: 15'
-      },
-    ],
-    'Viernes (Pull - Tracción)': [
-      {'name': 'Dominadas', 'series': 'Series: 4', 'reps': 'Reps: 8'},
-      {'name': 'Remo con barra', 'series': 'Series: 4', 'reps': 'Reps: 10'},
-      {'name': 'Peso muerto', 'series': 'Series: 4', 'reps': 'Reps: 6'},
-      {
-        'name': 'Remo con mancuernas',
-        'series': 'Series: 3',
-        'reps': 'Reps: 12'
-      },
-      {
-        'name': 'Curl de bíceps con barra',
-        'series': 'Series: 3',
-        'reps': 'Reps: 10'
-      },
-      {
-        'name': 'Curl de bíceps con mancuernas',
-        'series': 'Series: 3',
-        'reps': 'Reps: 12'
-      },
-    ],
-    'Sábado (Legs - Piernas)': [
-      {'name': 'Sentadillas', 'series': 'Series: 4', 'reps': 'Reps: 10'},
-      {'name': 'Prensa de piernas', 'series': 'Series: 4', 'reps': 'Reps: 12'},
-      {'name': 'Peso muerto rumano', 'series': 'Series: 3', 'reps': 'Reps: 8'},
-      {'name': 'Curl de piernas', 'series': 'Series: 3', 'reps': 'Reps: 10'},
-      {
-        'name': 'Elevaciones de talones',
-        'series': 'Series: 3',
-        'reps': 'Reps: 15'
-      },
-      {'name': 'Zancadas', 'series': 'Series: 3', 'reps': 'Reps: 12'},
-    ],
-  };
-
+class PPLScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final size = MediaQuery.of(context).size;
     final isLandscape = size.width > size.height;
+
+    final provider = Provider.of<PPLProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -156,11 +48,18 @@ class _PPLScreenState extends State<PPLScreen> {
             SizedBox(height: size.height * (isLandscape ? 0.005 : 0.02)),
             Expanded(
               child: ListView.builder(
-                itemCount: _workoutDays.keys.length,
+                itemCount: provider.workoutDays.keys.length,
                 itemBuilder: (context, index) {
-                  final day = _workoutDays.keys.elementAt(index);
+                  final day = provider.workoutDays.keys.elementAt(index);
                   return _buildDayCard(
-                      day, size, isLandscape, theme, textTheme);
+                    context,
+                    day,
+                    size,
+                    isLandscape,
+                    theme,
+                    textTheme,
+                    provider,
+                  );
                 },
               ),
             ),
@@ -170,11 +69,19 @@ class _PPLScreenState extends State<PPLScreen> {
     );
   }
 
-  Widget _buildDayCard(String day, Size size, bool isLandscape, ThemeData theme,
-      TextTheme textTheme) {
+  Widget _buildDayCard(
+    BuildContext context,
+    String day,
+    Size size,
+    bool isLandscape,
+    ThemeData theme,
+    TextTheme textTheme,
+    PPLProvider provider,
+  ) {
     return GestureDetector(
       onTap: () {
-        _showExerciseModal(context, day, size, isLandscape, theme, textTheme);
+        _showExerciseModal(
+            context, day, size, isLandscape, theme, textTheme, provider);
       },
       child: Card(
         elevation: 5,
@@ -205,9 +112,16 @@ class _PPLScreenState extends State<PPLScreen> {
     );
   }
 
-  void _showExerciseModal(BuildContext context, String day, Size size,
-      bool isLandscape, ThemeData theme, TextTheme textTheme) {
-    final exercises = _workoutDays[day]!;
+  void _showExerciseModal(
+    BuildContext context,
+    String day,
+    Size size,
+    bool isLandscape,
+    ThemeData theme,
+    TextTheme textTheme,
+    PPLProvider provider,
+  ) {
+    final exercises = provider.workoutDays[day]!;
 
     showModalBottomSheet(
       context: context,
@@ -260,8 +174,15 @@ class _PPLScreenState extends State<PPLScreen> {
     );
   }
 
-  Widget _buildExerciseCard(String name, String series, String reps, Size size,
-      bool isLandscape, ThemeData theme, TextTheme textTheme) {
+  Widget _buildExerciseCard(
+    String name,
+    String series,
+    String reps,
+    Size size,
+    bool isLandscape,
+    ThemeData theme,
+    TextTheme textTheme,
+  ) {
     return Card(
       elevation: 3,
       margin: EdgeInsets.symmetric(

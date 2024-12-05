@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:panthers_gym/providers/theme_provider.dart';
+import 'package:panthers_gym/providers/font_provider.dart';
 import 'package:panthers_gym/screens/home_screen.dart';
-import '../main.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -210,6 +212,10 @@ class ProfileScreen extends StatelessWidget {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (BuildContext context) {
+        final fontProvider = Provider.of<FontProvider>(context, listen: false);
+        final themeProvider =
+            Provider.of<ThemeProvider>(context, listen: false);
+
         return Padding(
           padding: const EdgeInsets.all(16.0),
           child: SingleChildScrollView(
@@ -225,30 +231,24 @@ class ProfileScreen extends StatelessWidget {
                   'Configurar Fuente',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
-                ValueListenableBuilder(
-                  valueListenable: selectedFontNotifier,
-                  builder: (context, selectedFont, _) {
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: availableFonts.length,
-                      itemBuilder: (context, index) {
-                        final font = availableFonts[index];
-                        final isSelected = font == selectedFont;
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: availableFonts.length,
+                  itemBuilder: (context, index) {
+                    final font = availableFonts[index];
+                    final isSelected = font == fontProvider.selectedFont;
 
-                        return ListTile(
-                          title: Text(
-                            font,
-                            style: TextStyle(fontFamily: font),
-                          ),
-                          trailing: isSelected
-                              ? Icon(Icons.check, color: Color(0xFF0047AB))
-                              : null,
-                          onTap: () {
-                            selectedFontNotifier.value = font;
-                            saveFontPreference(font);
-                          },
-                        );
+                    return ListTile(
+                      title: Text(
+                        font,
+                        style: TextStyle(fontFamily: font),
+                      ),
+                      trailing: isSelected
+                          ? Icon(Icons.check, color: Color(0xFF0047AB))
+                          : null,
+                      onTap: () {
+                        fontProvider.saveFontPreference(font);
                       },
                     );
                   },
@@ -258,34 +258,27 @@ class ProfileScreen extends StatelessWidget {
                   'Configurar Tema',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
-                ValueListenableBuilder(
-                  valueListenable: themeModeNotifier,
-                  builder: (context, themeMode, _) {
-                    return Column(
-                      children: [
-                        ListTile(
-                          title: Text('Tema de Día'),
-                          trailing: themeMode == ThemeMode.light
-                              ? Icon(Icons.check, color: Color(0xFF0047AB))
-                              : null,
-                          onTap: () {
-                            themeModeNotifier.value = ThemeMode.light;
-                            saveThemePreference(false);
-                          },
-                        ),
-                        ListTile(
-                          title: Text('Tema de Noche'),
-                          trailing: themeMode == ThemeMode.dark
-                              ? Icon(Icons.check, color: Color(0xFF0047AB))
-                              : null,
-                          onTap: () {
-                            themeModeNotifier.value = ThemeMode.dark;
-                            saveThemePreference(true);
-                          },
-                        ),
-                      ],
-                    );
-                  },
+                Column(
+                  children: [
+                    ListTile(
+                      title: Text('Tema de Día'),
+                      trailing: themeProvider.themeMode == ThemeMode.light
+                          ? Icon(Icons.check, color: Color(0xFF0047AB))
+                          : null,
+                      onTap: () {
+                        themeProvider.saveThemePreference(false);
+                      },
+                    ),
+                    ListTile(
+                      title: Text('Tema de Noche'),
+                      trailing: themeProvider.themeMode == ThemeMode.dark
+                          ? Icon(Icons.check, color: Color(0xFF0047AB))
+                          : null,
+                      onTap: () {
+                        themeProvider.saveThemePreference(true);
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),

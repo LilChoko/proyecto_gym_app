@@ -1,26 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:panthers_gym/screens/home_screen.dart';
-import 'package:panthers_gym/splits/bro_screen.dart';
-import 'package:panthers_gym/splits/fullbody_screen.dart';
-import 'package:panthers_gym/splits/heavy_screen.dart';
-import 'package:panthers_gym/splits/arnold_screen.dart';
-import 'package:panthers_gym/splits/ppl_screen.dart';
-import 'package:panthers_gym/splits/upperlower_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:panthers_gym/providers/training_provider.dart';
+import 'home_screen.dart';
 
 class TrainingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final trainingProvider = Provider.of<TrainingProvider>(context);
     final size = MediaQuery.of(context).size;
     final isLandscape = size.width > size.height;
-
-    final List<Map<String, String>> trainingPrograms = [
-      {'title': 'Heavy Duty', 'image': 'assets/heavy.jpg'},
-      {'title': 'Arnold Split', 'image': 'assets/arnold1.jpg'},
-      {'title': 'Push, Pull, Legs (PPL)', 'image': 'assets/tr3.jpg'},
-      {'title': 'Upper/Lower Split', 'image': 'assets/phul.jpg'},
-      {'title': 'Bro Split', 'image': 'assets/brosplit.jpg'},
-      {'title': 'Full Body', 'image': 'assets/tr2.jpg'},
-    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -48,16 +36,17 @@ class TrainingScreen extends StatelessWidget {
           vertical: size.height * 0.02,
         ),
         child: ListView.builder(
-          itemCount: trainingPrograms.length,
+          itemCount: trainingProvider.trainingPrograms.length,
           itemBuilder: (context, index) {
-            final program = trainingPrograms[index];
+            final program = trainingProvider.trainingPrograms[index];
             return _buildTrainingCard(
               context: context,
-              title: program['title']!,
-              imagePath: program['image']!,
+              title: program['title'],
+              imagePath: program['image'],
               size: size,
               isLandscape: isLandscape,
               index: index,
+              trainingProvider: trainingProvider,
             );
           },
         ),
@@ -72,6 +61,7 @@ class TrainingScreen extends StatelessWidget {
     required Size size,
     required bool isLandscape,
     required int index,
+    required TrainingProvider trainingProvider,
   }) {
     return Card(
       elevation: 5,
@@ -128,43 +118,7 @@ class TrainingScreen extends StatelessWidget {
             right: size.width * 0.05,
             child: ElevatedButton(
               onPressed: () {
-                if (index == 0) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => HeavyScreen()),
-                  );
-                } else if (index == 1) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ArnoldScreen()),
-                  );
-                } else if (index == 2) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => PPLScreen()),
-                  );
-                } else if (index == 3) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => UpperLowerScreen()),
-                  );
-                } else if (index == 4) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => BroScreen()),
-                  );
-                } else if (index == 5) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => FullBodyScreen()),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Pantalla no disponible aún'),
-                    ),
-                  );
-                }
+                trainingProvider.navigateToProgram(context, index);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).primaryColor,

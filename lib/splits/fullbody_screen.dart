@@ -1,118 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:panthers_gym/providers/fullbody_provider.dart';
 import 'package:panthers_gym/screens/training_screen.dart';
+import 'package:provider/provider.dart';
 
-class FullBodyScreen extends StatefulWidget {
-  @override
-  _FullBodyScreenState createState() => _FullBodyScreenState();
-}
-
-class _FullBodyScreenState extends State<FullBodyScreen> {
-  final Map<String, List<Map<String, String>>> _workoutDays = {
-    'Lunes (Cuerpo Completo)': [
-      {'name': 'Press de banca', 'series': 'Series: 4', 'reps': 'Reps: 10'},
-      {'name': 'Dominadas', 'series': 'Series: 4', 'reps': 'Reps: 8'},
-      {'name': 'Sentadillas', 'series': 'Series: 4', 'reps': 'Reps: 10'},
-      {'name': 'Press militar', 'series': 'Series: 3', 'reps': 'Reps: 12'},
-      {
-        'name': 'Curl de bíceps con barra',
-        'series': 'Series: 3',
-        'reps': 'Reps: 10'
-      },
-      {
-        'name': 'Extensiones de tríceps en polea',
-        'series': 'Series: 3',
-        'reps': 'Reps: 12'
-      },
-      {'name': 'Crunches', 'series': 'Series: 4', 'reps': 'Reps: 20'},
-    ],
-    'Miércoles (Cuerpo Completo)': [
-      {
-        'name': 'Press inclinado con mancuernas',
-        'series': 'Series: 4',
-        'reps': 'Reps: 10'
-      },
-      {'name': 'Remo con barra', 'series': 'Series: 4', 'reps': 'Reps: 10'},
-      {'name': 'Peso muerto', 'series': 'Series: 3', 'reps': 'Reps: 6'},
-      {
-        'name': 'Elevaciones laterales',
-        'series': 'Series: 3',
-        'reps': 'Reps: 12'
-      },
-      {
-        'name': 'Curl de bíceps con mancuernas',
-        'series': 'Series: 3',
-        'reps': 'Reps: 10'
-      },
-      {
-        'name': 'Fondos para tríceps',
-        'series': 'Series: 3',
-        'reps': 'Reps: 12'
-      },
-      {
-        'name': 'Elevaciones de piernas',
-        'series': 'Series: 4',
-        'reps': 'Reps: 20'
-      },
-    ],
-    'Viernes (Cuerpo Completo)': [
-      {'name': 'Flexiones', 'series': 'Series: 4', 'reps': 'Reps: 15'},
-      {
-        'name': 'Remo con mancuernas',
-        'series': 'Series: 4',
-        'reps': 'Reps: 10'
-      },
-      {'name': 'Prensa de piernas', 'series': 'Series: 3', 'reps': 'Reps: 12'},
-      {
-        'name': 'Press militar con mancuernas',
-        'series': 'Series: 3',
-        'reps': 'Reps: 10'
-      },
-      {'name': 'Curl martillo', 'series': 'Series: 3', 'reps': 'Reps: 12'},
-      {
-        'name': 'Extensión con barra Z',
-        'series': 'Series: 3',
-        'reps': 'Reps: 12'
-      },
-      {'name': 'Plancha', 'series': 'Series: 3', 'reps': 'Duración: 60 seg'},
-    ],
-    'Domingo (Full Body)': [
-      {'name': 'Flexiones', 'series': 'Series: 4', 'reps': 'Reps: 12'},
-      {
-        'name': 'Remo con mancuernas',
-        'series': 'Series: 3',
-        'reps': 'Reps: 10'
-      },
-      {'name': 'Sentadillas', 'series': 'Series: 4', 'reps': 'Reps: 12'},
-      {
-        'name': 'Press militar con mancuernas',
-        'series': 'Series: 3',
-        'reps': 'Reps: 10'
-      },
-      {
-        'name': 'Curl de bíceps con mancuernas',
-        'series': 'Series: 3',
-        'reps': 'Reps: 10'
-      },
-      {
-        'name': 'Extensiones con agarre V',
-        'series': 'Series: 3',
-        'reps': 'Reps: 12'
-      },
-      {
-        'name': 'Elevaciones de piernas',
-        'series': 'Series: 4',
-        'reps': 'Reps: 20'
-      },
-      {'name': 'Plancha', 'series': 'Series: 3', 'reps': 'Duración: 60 seg'},
-    ],
-  };
-
+class FullBodyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final size = MediaQuery.of(context).size;
     final isLandscape = size.width > size.height;
+
+    final provider = Provider.of<FullBodyProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -149,11 +48,11 @@ class _FullBodyScreenState extends State<FullBodyScreen> {
             SizedBox(height: size.height * (isLandscape ? 0.005 : 0.02)),
             Expanded(
               child: ListView.builder(
-                itemCount: _workoutDays.keys.length,
+                itemCount: provider.workoutDays.keys.length,
                 itemBuilder: (context, index) {
-                  final day = _workoutDays.keys.elementAt(index);
-                  return _buildDayCard(
-                      day, size, isLandscape, theme, textTheme);
+                  final day = provider.workoutDays.keys.elementAt(index);
+                  return _buildDayCard(context, day, size, isLandscape, theme,
+                      textTheme, provider);
                 },
               ),
             ),
@@ -163,11 +62,19 @@ class _FullBodyScreenState extends State<FullBodyScreen> {
     );
   }
 
-  Widget _buildDayCard(String day, Size size, bool isLandscape, ThemeData theme,
-      TextTheme textTheme) {
+  Widget _buildDayCard(
+    BuildContext context,
+    String day,
+    Size size,
+    bool isLandscape,
+    ThemeData theme,
+    TextTheme textTheme,
+    FullBodyProvider provider,
+  ) {
     return GestureDetector(
       onTap: () {
-        _showExerciseModal(context, day, size, isLandscape, theme, textTheme);
+        _showExerciseModal(
+            context, day, size, isLandscape, theme, textTheme, provider);
       },
       child: Card(
         elevation: 5,
@@ -198,9 +105,16 @@ class _FullBodyScreenState extends State<FullBodyScreen> {
     );
   }
 
-  void _showExerciseModal(BuildContext context, String day, Size size,
-      bool isLandscape, ThemeData theme, TextTheme textTheme) {
-    final exercises = _workoutDays[day]!;
+  void _showExerciseModal(
+    BuildContext context,
+    String day,
+    Size size,
+    bool isLandscape,
+    ThemeData theme,
+    TextTheme textTheme,
+    FullBodyProvider provider,
+  ) {
+    final exercises = provider.workoutDays[day]!;
 
     showModalBottomSheet(
       context: context,
@@ -253,8 +167,15 @@ class _FullBodyScreenState extends State<FullBodyScreen> {
     );
   }
 
-  Widget _buildExerciseCard(String name, String series, String reps, Size size,
-      bool isLandscape, ThemeData theme, TextTheme textTheme) {
+  Widget _buildExerciseCard(
+    String name,
+    String series,
+    String reps,
+    Size size,
+    bool isLandscape,
+    ThemeData theme,
+    TextTheme textTheme,
+  ) {
     return Card(
       elevation: 3,
       margin: EdgeInsets.symmetric(

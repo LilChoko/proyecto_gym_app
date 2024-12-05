@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:intl/intl.dart';
-import 'package:panthers_gym/screens/home_screen.dart';
+import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
+import 'package:panthers_gym/providers/peso_provider.dart';
+import 'home_screen.dart';
 
-class PesoScreen extends StatefulWidget {
-  @override
-  _PesoScreenState createState() => _PesoScreenState();
-}
-
-class _PesoScreenState extends State<PesoScreen> {
-  final List<Map<String, String>> _historialPeso = [];
-
+class PesoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final pesoProvider = Provider.of<PesoProvider>(context);
     final size = MediaQuery.of(context).size;
     final isLandscape = size.width > size.height;
 
@@ -38,9 +34,9 @@ class _PesoScreenState extends State<PesoScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.scale_rounded, color: Colors.white),
+            icon: const Icon(Icons.scale_rounded, color: Colors.white),
             onPressed: () {
-              _showAddWeightModal(context, size, isLandscape);
+              _showAddWeightModal(context, size, isLandscape, pesoProvider);
             },
           ),
         ],
@@ -63,7 +59,7 @@ class _PesoScreenState extends State<PesoScreen> {
             SizedBox(height: size.height * 0.02),
             Center(
               child: Lottie.asset(
-                'assets/bascula.json',
+                'assets/lotties/bascula.json',
                 height: isLandscape ? size.height * 0.15 : size.height * 0.3,
                 width: size.width * 0.5,
                 fit: BoxFit.contain,
@@ -71,7 +67,7 @@ class _PesoScreenState extends State<PesoScreen> {
             ),
             SizedBox(height: size.height * 0.03),
             Expanded(
-              child: _historialPeso.isEmpty
+              child: pesoProvider.historialPeso.isEmpty
                   ? Center(
                       child: Text(
                         'No hay registros aún',
@@ -84,15 +80,16 @@ class _PesoScreenState extends State<PesoScreen> {
                       ),
                     )
                   : ListView.builder(
-                      itemCount: _historialPeso.length,
+                      itemCount: pesoProvider.historialPeso.length,
                       itemBuilder: (context, index) {
-                        final registro = _historialPeso[index];
+                        final registro = pesoProvider.historialPeso[index];
                         return _buildDismissibleCard(
                           context,
                           size,
                           isLandscape,
                           index,
                           registro,
+                          pesoProvider,
                         );
                       },
                     ),
@@ -103,8 +100,14 @@ class _PesoScreenState extends State<PesoScreen> {
     );
   }
 
-  Widget _buildDismissibleCard(BuildContext context, Size size,
-      bool isLandscape, int index, Map<String, String> registro) {
+  Widget _buildDismissibleCard(
+    BuildContext context,
+    Size size,
+    bool isLandscape,
+    int index,
+    Map<String, String> registro,
+    PesoProvider pesoProvider,
+  ) {
     return Dismissible(
       key: Key(registro['fecha']! + registro['peso']!),
       direction: DismissDirection.endToStart,
@@ -126,11 +129,9 @@ class _PesoScreenState extends State<PesoScreen> {
         return await _showDeleteConfirmation(context);
       },
       onDismissed: (direction) {
-        setState(() {
-          _historialPeso.removeAt(index);
-        });
+        pesoProvider.eliminarPeso(index);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registro eliminado')),
+          const SnackBar(content: Text('Registro eliminado')),
         );
       },
       child: Card(
@@ -188,14 +189,15 @@ class _PesoScreenState extends State<PesoScreen> {
     );
   }
 
-  void _showAddWeightModal(BuildContext context, Size size, bool isLandscape) {
+  void _showAddWeightModal(BuildContext context, Size size, bool isLandscape,
+      PesoProvider pesoProvider) {
     final _pesoController = TextEditingController();
     DateTime? _selectedDate;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext context) {
@@ -230,9 +232,7 @@ class _PesoScreenState extends State<PesoScreen> {
                       lastDate: DateTime(2100),
                     );
                     if (pickedDate != null) {
-                      setState(() {
-                        _selectedDate = pickedDate;
-                      });
+                      _selectedDate = pickedDate;
                     }
                   },
                   child: Container(
@@ -265,7 +265,7 @@ class _PesoScreenState extends State<PesoScreen> {
                 SizedBox(height: size.height * 0.02),
                 TextField(
                   controller: _pesoController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Peso (Kg)',
                     border: OutlineInputBorder(),
                   ),
@@ -276,13 +276,8 @@ class _PesoScreenState extends State<PesoScreen> {
                   onPressed: () {
                     if (_selectedDate != null &&
                         _pesoController.text.isNotEmpty) {
-                      setState(() {
-                        _historialPeso.add({
-                          'fecha':
-                              DateFormat('dd/MM/yyyy').format(_selectedDate!),
-                          'peso': _pesoController.text,
-                        });
-                      });
+                      pesoProvider.agregarPeso(
+                          _selectedDate!, _pesoController.text);
                       Navigator.pop(context);
                     }
                   },
@@ -322,22 +317,22 @@ class _PesoScreenState extends State<PesoScreen> {
           title: Column(
             children: [
               Lottie.asset(
-                'assets/borrar.json',
+                'assets/lotties/borrar.json',
                 height: 100,
                 width: 100,
               ),
-              Text('¿Eliminar registro?'),
+              const Text('¿Eliminar registro?'),
             ],
           ),
-          content: Text('Esta acción no se puede deshacer.'),
+          content: const Text('Esta acción no se puede deshacer.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: Text('Eliminar'),
+              child: const Text('Eliminar'),
             ),
           ],
         );
