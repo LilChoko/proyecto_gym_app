@@ -8,7 +8,6 @@ import 'home_screen.dart';
 class PesoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final pesoProvider = Provider.of<PesoProvider>(context);
     final size = MediaQuery.of(context).size;
     final isLandscape = size.width > size.height;
 
@@ -36,66 +35,78 @@ class PesoScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.scale_rounded, color: Colors.white),
             onPressed: () {
-              _showAddWeightModal(context, size, isLandscape, pesoProvider);
+              _showAddWeightModal(context, size, isLandscape);
             },
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.all(size.width * 0.05),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Historial de Peso',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontSize:
-                        isLandscape ? size.width * 0.03 : size.width * 0.05,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                  ),
-              textAlign: TextAlign.center,
+      body: Consumer<PesoProvider>(
+        builder: (context, pesoProvider, child) {
+          if (pesoProvider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return _buildPesoScreenContent(context, isLandscape, size);
+        },
+      ),
+    );
+  }
+
+  Widget _buildPesoScreenContent(
+      BuildContext context, bool isLandscape, Size size) {
+    final pesoProvider = Provider.of<PesoProvider>(context);
+
+    return Padding(
+      padding: EdgeInsets.all(size.width * 0.05),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Historial de Peso',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontSize: isLandscape ? size.width * 0.03 : size.width * 0.05,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: size.height * 0.02),
+          Center(
+            child: Lottie.asset(
+              'assets/lotties/bascula.json',
+              height: isLandscape ? size.height * 0.15 : size.height * 0.3,
+              width: size.width * 0.5,
+              fit: BoxFit.contain,
             ),
-            SizedBox(height: size.height * 0.02),
-            Center(
-              child: Lottie.asset(
-                'assets/lotties/bascula.json',
-                height: isLandscape ? size.height * 0.15 : size.height * 0.3,
-                width: size.width * 0.5,
-                fit: BoxFit.contain,
-              ),
-            ),
-            SizedBox(height: size.height * 0.03),
-            Expanded(
-              child: pesoProvider.historialPeso.isEmpty
-                  ? Center(
-                      child: Text(
-                        'No hay registros aún',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontSize: isLandscape
-                                  ? size.width * 0.03
-                                  : size.width * 0.04,
-                              color: Colors.grey,
-                            ),
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: pesoProvider.historialPeso.length,
-                      itemBuilder: (context, index) {
-                        final registro = pesoProvider.historialPeso[index];
-                        return _buildDismissibleCard(
-                          context,
-                          size,
-                          isLandscape,
-                          index,
-                          registro,
-                          pesoProvider,
-                        );
-                      },
+          ),
+          SizedBox(height: size.height * 0.03),
+          Expanded(
+            child: pesoProvider.historialPeso.isEmpty
+                ? Center(
+                    child: Text(
+                      'No hay registros aún',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: isLandscape
+                                ? size.width * 0.03
+                                : size.width * 0.04,
+                            color: Colors.grey,
+                          ),
                     ),
-            ),
-          ],
-        ),
+                  )
+                : ListView.builder(
+                    itemCount: pesoProvider.historialPeso.length,
+                    itemBuilder: (context, index) {
+                      final registro = pesoProvider.historialPeso[index];
+                      return _buildDismissibleCard(
+                        context,
+                        size,
+                        isLandscape,
+                        registro,
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -104,12 +115,12 @@ class PesoScreen extends StatelessWidget {
     BuildContext context,
     Size size,
     bool isLandscape,
-    int index,
-    Map<String, String> registro,
-    PesoProvider pesoProvider,
+    Map<String, dynamic> registro,
   ) {
+    final pesoProvider = Provider.of<PesoProvider>(context, listen: false);
+
     return Dismissible(
-      key: Key(registro['fecha']! + registro['peso']!),
+      key: Key(registro['id']),
       direction: DismissDirection.endToStart,
       background: Container(
         margin: EdgeInsets.symmetric(vertical: isLandscape ? 3 : 5),
@@ -129,7 +140,7 @@ class PesoScreen extends StatelessWidget {
         return await _showDeleteConfirmation(context);
       },
       onDismissed: (direction) {
-        pesoProvider.eliminarPeso(index);
+        pesoProvider.eliminarPeso(registro['id']);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Registro eliminado')),
         );
@@ -165,7 +176,7 @@ class PesoScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Fecha: ${registro['fecha']!}',
+                        'Fecha: ${DateFormat('dd/MM/yyyy').format(registro['fecha'])}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               fontSize:
                                   size.width * (isLandscape ? 0.03 : 0.04),
@@ -189,10 +200,8 @@ class PesoScreen extends StatelessWidget {
     );
   }
 
-  void _showAddWeightModal(BuildContext context, Size size, bool isLandscape,
-      PesoProvider pesoProvider) {
+  void _showAddWeightModal(BuildContext context, Size size, bool isLandscape) {
     final _pesoController = TextEditingController();
-    DateTime? _selectedDate;
 
     showModalBottomSheet(
       context: context,
@@ -201,106 +210,63 @@ class PesoScreen extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext context) {
-        return SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: size.width * 0.05,
-              right: size.width * 0.05,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(height: size.height * 0.02),
-                Text(
-                  'Agregar Nuevo Peso',
+        return Padding(
+          padding: EdgeInsets.only(
+            left: size.width * 0.05,
+            right: size.width * 0.05,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: size.height * 0.02),
+              Text(
+                'Agregar Nuevo Peso',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontSize:
+                          isLandscape ? size.width * 0.035 : size.width * 0.05,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
+                    ),
+              ),
+              SizedBox(height: size.height * 0.02),
+              TextField(
+                controller: _pesoController,
+                decoration: const InputDecoration(
+                  labelText: 'Peso (Kg)',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: size.height * 0.03),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_pesoController.text.isNotEmpty) {
+                    final peso = double.parse(_pesoController.text);
+                    await Provider.of<PesoProvider>(context, listen: false)
+                        .agregarPeso(peso);
+                    Navigator.pop(context);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: size.width * 0.2,
+                    vertical: size.height * (isLandscape ? 0.015 : 0.02),
+                  ),
+                ),
+                child: Text(
+                  'Guardar',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Colors.white,
                         fontSize: isLandscape
-                            ? size.width * 0.035
-                            : size.width * 0.05,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor,
+                            ? size.width * 0.03
+                            : size.width * 0.045,
                       ),
                 ),
-                SizedBox(height: size.height * 0.02),
-                GestureDetector(
-                  onTap: () async {
-                    final pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2100),
-                    );
-                    if (pickedDate != null) {
-                      _selectedDate = pickedDate;
-                    }
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      vertical: size.height * 0.015,
-                      horizontal: size.width * 0.03,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _selectedDate != null
-                              ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
-                              : 'Seleccionar Fecha',
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Colors.grey,
-                                  ),
-                        ),
-                        Icon(Icons.calendar_today,
-                            color: Theme.of(context).primaryColor),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: size.height * 0.02),
-                TextField(
-                  controller: _pesoController,
-                  decoration: const InputDecoration(
-                    labelText: 'Peso (Kg)',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-                SizedBox(height: size.height * 0.03),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_selectedDate != null &&
-                        _pesoController.text.isNotEmpty) {
-                      pesoProvider.agregarPeso(
-                          _selectedDate!, _pesoController.text);
-                      Navigator.pop(context);
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: size.width * 0.2,
-                      vertical: size.height * (isLandscape ? 0.015 : 0.02),
-                    ),
-                  ),
-                  child: Text(
-                    'Guardar',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.white,
-                          fontSize: isLandscape
-                              ? size.width * 0.03
-                              : size.width * 0.045,
-                        ),
-                  ),
-                ),
-                SizedBox(height: size.height * 0.02),
-              ],
-            ),
+              ),
+              SizedBox(height: size.height * 0.02),
+            ],
           ),
         );
       },
@@ -340,3 +306,4 @@ class PesoScreen extends StatelessWidget {
     );
   }
 }
+//AQUI YA DEJA ESCRIBIR PESOS
