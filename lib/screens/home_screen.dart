@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:panthers_gym/providers/auth_provider.dart' as custom_auth;
+import 'package:panthers_gym/screens/map_screen.dart';
 import 'package:provider/provider.dart';
 import 'login_screen.dart';
 import 'profile_screen.dart';
@@ -185,6 +186,21 @@ class HomeScreen extends StatelessWidget {
                     isLandscape: isLandscape,
                     onPressed: () {
                       // Lógica para pago de mensualidad
+                    },
+                  ),
+                  _buildIconButton(
+                    context: context,
+                    icon: Icons.place_rounded,
+                    label: 'Ubicanos',
+                    size: size,
+                    isLandscape: isLandscape,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MapScreen(),
+                        ),
+                      );
                     },
                   ),
                   _buildIconButton(

@@ -18,6 +18,7 @@ import 'package:provider/provider.dart';
 import 'package:panthers_gym/providers/cuestionario_provider.dart';
 import 'package:panthers_gym/providers/consejos_provider.dart';
 import 'package:panthers_gym/providers/peso_provider.dart';
+import 'package:panthers_gym/providers/map_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,6 +53,7 @@ class MainApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => HeavyProvider()),
         ChangeNotifierProvider(create: (_) => PPLProvider()),
         ChangeNotifierProvider(create: (_) => UpperLowerProvider()),
+        ChangeNotifierProvider(create: (_) => MapProvider()),
       ],
       child: const MyApp(),
     );
