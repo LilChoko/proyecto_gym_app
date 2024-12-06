@@ -9,6 +9,7 @@ import 'package:panthers_gym/providers/theme_provider.dart';
 import 'package:panthers_gym/providers/font_provider.dart';
 import 'package:panthers_gym/providers/training_provider.dart';
 import 'package:panthers_gym/providers/upperlower_provider.dart';
+import 'package:panthers_gym/screens/cuestionario1_screen.dart';
 import 'package:panthers_gym/screens/login_screen.dart';
 import 'package:panthers_gym/screens/home_screen.dart';
 import 'package:panthers_gym/screens/firebase_options.dart';
@@ -40,7 +41,7 @@ class MainApp extends StatelessWidget {
             create: (_) => ThemeProvider()..loadThemePreference()),
         ChangeNotifierProvider(
             create: (_) => FontProvider()..loadFontPreference()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()..loadUserInfo()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => CuestionarioProvider()),
         ChangeNotifierProvider(create: (_) => ConsejosProvider()),
         ChangeNotifierProvider(create: (_) => PesoProvider()),
@@ -98,6 +99,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/home': (context) => HomeScreen(),
         '/login': (context) => LoginScreen(),
+        '/cuestionario': (context) => CuestionarioScreen(),
       },
     );
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:panthers_gym/providers/auth_provider.dart';
-import 'home_screen.dart';
 import 'cuestionario1_screen.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   final _emailController = TextEditingController();
@@ -89,23 +89,15 @@ class LoginScreen extends StatelessWidget {
 
   Future<void> _signIn(BuildContext context, AuthProvider authProvider) async {
     try {
+      // Redirección basada en el estado del cuestionario ya manejado en signInWithEmail
       await authProvider.signInWithEmail(
         _emailController.text.trim(),
         _passwordController.text.trim(),
-      );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        context, // Pasamos el contexto para manejar las rutas en AuthProvider
       );
     } catch (e) {
-      if (e == 'questionnaire') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => CuestionarioScreen()),
-        );
-      } else {
-        _showMessage(context, e.toString());
-      }
+      // Mostrar mensaje de error si ocurre alguna excepción
+      _showMessage(context, e.toString());
     }
   }
 

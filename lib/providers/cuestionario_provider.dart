@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CuestionarioProvider with ChangeNotifier {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   int _selectedOption = -1; // Opción seleccionada en Cuestionario 1
   int _currentIndex = 0; // Página actual
   String? _name;
@@ -48,13 +50,18 @@ class CuestionarioProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Guardar datos en SharedPreferences
-  Future<void> saveData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('completedQuestionnaire', true);
-    await prefs.setString('name', _name ?? '');
-    await prefs.setString('height', _height ?? '');
-    await prefs.setString('weight', _weight ?? '');
-    await prefs.setString('gender', _gender ?? '');
+  // Guardar datos en Firestore
+  Future<void> saveData(String userId) async {
+    try {
+      await _firestore.collection('users').doc(userId).update({
+        'name': _name,
+        'height': _height,
+        'weight': _weight,
+        'gender': _gender,
+        'completed_questionnaire': true,
+      });
+    } catch (e) {
+      throw Exception('Error al guardar los datos del cuestionario: $e');
+    }
   }
 }

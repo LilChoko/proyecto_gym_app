@@ -1,8 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:panthers_gym/providers/auth_provider.dart' as custom_auth;
-import 'package:panthers_gym/screens/login_screen.dart';
 import 'package:provider/provider.dart';
+import 'login_screen.dart';
 import 'profile_screen.dart';
 import 'peso_screen.dart';
 import 'training_screen.dart';
@@ -14,6 +13,7 @@ class HomeScreen extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     final isLandscape = size.width > size.height;
 
+    // Usar AuthProvider para obtener los datos del usuario
     final authProvider = Provider.of<custom_auth.AuthProvider>(context);
 
     return Scaffold(
@@ -59,12 +59,35 @@ class HomeScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          Text(
-                            authProvider.userName ?? 'Invitado',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            ),
+                          FutureBuilder<String?>(
+                            future: authProvider.fetchUserName(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Text(
+                                  'Brazo de 35',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                );
+                              } else if (snapshot.hasError) {
+                                return const Text(
+                                  'Error al cargar',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 16,
+                                  ),
+                                );
+                              }
+                              return Text(
+                                snapshot.data ?? 'Invitado',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -94,7 +117,8 @@ class HomeScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ProfileScreen()),
+                          builder: (context) => ProfileScreen(),
+                        ),
                       );
                     },
                   ),
@@ -107,7 +131,9 @@ class HomeScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => PesoScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => PesoScreen(),
+                        ),
                       );
                     },
                   ),
@@ -121,7 +147,8 @@ class HomeScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => TrainingScreen()),
+                          builder: (context) => TrainingScreen(),
+                        ),
                       );
                     },
                   ),
@@ -135,7 +162,8 @@ class HomeScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ConsejosScreen()),
+                          builder: (context) => ConsejosScreen(),
+                        ),
                       );
                     },
                   ),
@@ -166,14 +194,12 @@ class HomeScreen extends StatelessWidget {
                     size: size,
                     isLandscape: isLandscape,
                     onPressed: () async {
-                      final authProvider =
-                          Provider.of<custom_auth.AuthProvider>(context,
-                              listen: false);
-
                       await authProvider.signOut();
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => LoginScreen(),
+                        ),
                         (Route<dynamic> route) => false,
                       );
                     },
@@ -221,7 +247,8 @@ class HomeScreen extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             shape: const CircleBorder(),
             padding: EdgeInsets.all(
-                isLandscape ? size.width * 0.03 : size.width * 0.04),
+              isLandscape ? size.width * 0.03 : size.width * 0.04,
+            ),
             backgroundColor: Theme.of(context).primaryColor,
           ),
           child: Icon(

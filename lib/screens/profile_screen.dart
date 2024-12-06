@@ -1,25 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:panthers_gym/providers/theme_provider.dart';
 import 'package:panthers_gym/providers/font_provider.dart';
 import 'package:panthers_gym/screens/home_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatelessWidget {
-  // Método para cargar los datos del usuario desde SharedPreferences
+  // Método para cargar los datos del usuario desde Firestore
   Future<Map<String, String>> _loadUserInfo() async {
-    final prefs = await SharedPreferences.getInstance();
-    final name = prefs.getString('name') ?? 'No proporcionado';
-    final height = prefs.getString('height') ?? 'No proporcionado';
-    final weight = prefs.getString('weight') ?? 'No proporcionado';
-    final gender = prefs.getString('gender') ?? 'No proporcionado';
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('No se encontró al usuario.');
+    }
 
-    return {
-      'name': name,
-      'height': height,
-      'weight': weight,
-      'gender': gender,
-    };
+    try {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (!userDoc.exists) {
+        throw Exception('No se encontraron datos del usuario.');
+      }
+
+      final data = userDoc.data()!;
+      return {
+        'name': data['name'] ?? 'No proporcionado',
+        'height': data['height']?.toString() ?? 'No proporcionado',
+        'weight': data['weight']?.toString() ?? 'No proporcionado',
+        'gender': data['gender'] ?? 'No proporcionado',
+      };
+    } catch (e) {
+      throw Exception('Error al cargar los datos del usuario: $e');
+    }
   }
 
   @override
@@ -30,9 +44,20 @@ class ProfileScreen extends StatelessWidget {
     return FutureBuilder<Map<String, String>>(
       future: _loadUserInfo(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(color: Colors.red, fontSize: 16),
+              ),
+            ),
           );
         }
 

@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:panthers_gym/providers/cuestionario_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'home_screen.dart';
 
 class CuestionarioScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cuestionarioProvider = Provider.of<CuestionarioProvider>(context);
+    final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
       appBar: AppBar(
@@ -29,7 +32,7 @@ class CuestionarioScreen extends StatelessWidget {
               children: [
                 _buildCuestionario1(context),
                 _buildCuestionario2(context),
-                _buildFinalScreen(context),
+                _buildFinalScreen(context, user?.uid),
               ],
             ),
           ),
@@ -180,7 +183,7 @@ class CuestionarioScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFinalScreen(BuildContext context) {
+  Widget _buildFinalScreen(BuildContext context, String? userId) {
     final cuestionarioProvider = Provider.of<CuestionarioProvider>(context);
 
     return SingleChildScrollView(
@@ -199,11 +202,22 @@ class CuestionarioScreen extends StatelessWidget {
             const SizedBox(height: 70),
             ElevatedButton(
               onPressed: () async {
-                await cuestionarioProvider.saveData();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomeScreen()),
-                );
+                if (userId != null) {
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(userId)
+                      .update({
+                    'name': cuestionarioProvider.name,
+                    'height': cuestionarioProvider.height,
+                    'weight': cuestionarioProvider.weight,
+                    'gender': cuestionarioProvider.gender,
+                    'completed_questionnaire': true,
+                  });
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                  );
+                }
               },
               child: const Text('Finalizar',
                   style: TextStyle(color: Colors.white)),
