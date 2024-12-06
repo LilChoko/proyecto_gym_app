@@ -50,6 +50,22 @@ class CuestionarioProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Validaciones
+  bool validateCuestionario1() {
+    return _selectedOption != -1;
+  }
+
+  bool validateCuestionario2() {
+    return _name != null &&
+        _name!.isNotEmpty &&
+        _height != null &&
+        _height!.isNotEmpty &&
+        _weight != null &&
+        _weight!.isNotEmpty &&
+        _gender != null &&
+        _gender!.isNotEmpty;
+  }
+
   // Guardar datos en Firestore
   Future<void> saveData(String userId) async {
     try {

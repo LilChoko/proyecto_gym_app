@@ -23,7 +23,6 @@ class CuestionarioScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Contenido principal: Página deslizante
           Expanded(
             child: PageView(
               onPageChanged: (index) {
@@ -36,7 +35,6 @@ class CuestionarioScreen extends StatelessWidget {
               ],
             ),
           ),
-          // Indicador de progreso
           Padding(
             padding: const EdgeInsets.only(bottom: 16.0),
             child: Row(
@@ -62,8 +60,6 @@ class CuestionarioScreen extends StatelessWidget {
   }
 
   Widget _buildCuestionario1(BuildContext context) {
-    final cuestionarioProvider = Provider.of<CuestionarioProvider>(context);
-
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -97,7 +93,14 @@ class CuestionarioScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         cuestionarioProvider.selectOption(index);
-        cuestionarioProvider.nextPage();
+        if (cuestionarioProvider.validateCuestionario1()) {
+          cuestionarioProvider.nextPage();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Selecciona una opción para continuar')),
+          );
+        }
       },
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -195,24 +198,24 @@ class CuestionarioScreen extends StatelessWidget {
             Lottie.asset('assets/lotties/empecemos.json', height: 200),
             const SizedBox(height: 20),
             const Text(
-              'Lo que enfrentamos puede parecer insuperable.\nPero aprendí algo de todas esas series y repeticiones cuando no pensé que podría levantar otra onza de peso.\nLo que aprendí es que siempre somos más fuertes de lo que pensamos.\n\n~Arnold Schwarzenegger',
+              'Lo que enfrentamos puede parecer insuperable...\n\n~Arnold Schwarzenegger',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
             ),
             const SizedBox(height: 70),
             ElevatedButton(
               onPressed: () async {
+                if (!cuestionarioProvider.validateCuestionario2()) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                          'Por favor completa todos los campos para continuar'),
+                    ),
+                  );
+                  return;
+                }
                 if (userId != null) {
-                  await FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(userId)
-                      .update({
-                    'name': cuestionarioProvider.name,
-                    'height': cuestionarioProvider.height,
-                    'weight': cuestionarioProvider.weight,
-                    'gender': cuestionarioProvider.gender,
-                    'completed_questionnaire': true,
-                  });
+                  await cuestionarioProvider.saveData(userId);
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => HomeScreen()),
